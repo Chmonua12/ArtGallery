@@ -1,0 +1,204 @@
+<!-- liquibase/changelog/002-seed-data.xml -->
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="4" author="artgallery">
+        <comment>Добавление тестовых данных: Художники</comment>
+        
+        <!-- Леонардо да Винчи -->
+        <insert tableName="Artists">
+            <column name="FirstName" value="Леонардо"/>
+            <column name="LastName" value="да Винчи"/>
+            <column name="Biography" value="Итальянский художник, учёный, изобретатель, писатель, музыкант, один из крупнейших представителей искусства Высокого Возрождения, яркий пример «универсального человека»"/>
+            <column name="BirthDate" value="1452-04-15"/>
+            <column name="DeathDate" value="1519-05-02"/>
+            <column name="Country" value="Италия"/>
+        </insert>
+        
+        <!-- Винсент ван Гог -->
+        <insert tableName="Artists">
+            <column name="FirstName" value="Винсент"/>
+            <column name="LastName" value="ван Гог"/>
+            <column name="Biography" value="Нидерландский художник-постимпрессионист, чьи работы оказали вневременное влияние на живопись XX века. За десять с небольшим лет создал более 2100 произведений"/>
+            <column name="BirthDate" value="1853-03-30"/>
+            <column name="DeathDate" value="1890-07-29"/>
+            <column name="Country" value="Нидерланды"/>
+        </insert>
+        
+        <!-- Пабло Пикассо -->
+        <insert tableName="Artists">
+            <column name="FirstName" value="Пабло"/>
+            <column name="LastName" value="Пикассо"/>
+            <column name="Biography" value="Испанский художник, скульптор, график, театральный декоратор, керамист и дизайнер. Основоположник кубизма, в котором трёхмерное тело в оригинальной манере изображалось как ряд совмещённых воедино плоскостей"/>
+            <column name="BirthDate" value="1881-10-25"/>
+            <column name="DeathDate" value="1973-04-08"/>
+            <column name="Country" value="Испания"/>
+        </insert>
+        
+        <!-- Иван Шишкин -->
+        <insert tableName="Artists">
+            <column name="FirstName" value="Иван"/>
+            <column name="LastName" value="Шишкин"/>
+            <column name="Biography" value="Русский художник-пейзажист, живописец, рисовальщик и гравёр-аквафортист. Представитель Дюссельдорфской художественной школы. Академик, профессор, руководитель пейзажной мастерской Императорской Академии художеств"/>
+            <column name="BirthDate" value="1832-01-25"/>
+            <column name="DeathDate" value="1898-03-20"/>
+            <column name="Country" value="Россия"/>
+        </insert>
+        
+        <!-- Клод Моне -->
+        <insert tableName="Artists">
+            <column name="FirstName" value="Клод"/>
+            <column name="LastName" value="Моне"/>
+            <column name="Biography" value="Французский живописец, один из основателей импрессионизма. Термин «импрессионизм» появился благодаря картине Моне «Впечатление. Восходящее солнце»"/>
+            <column name="BirthDate" value="1840-11-14"/>
+            <column name="DeathDate" value="1926-12-05"/>
+            <column name="Country" value="Франция"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="5" author="artgallery">
+        <comment>Добавление тестовых данных: Музеи</comment>
+        
+        <!-- Лувр -->
+        <insert tableName="Museums">
+            <column name="Name" value="Лувр"/>
+            <column name="Address" value="Rue de Rivoli, 75001"/>
+            <column name="City" value="Париж"/>
+            <column name="Country" value="Франция"/>
+            <column name="FoundationDate" value="1793-08-10"/>
+            <column name="Description" value="Один из крупнейших и самый популярный художественный музей мира. Музей расположен в центре Парижа, на правом берегу Сены, на улице Риволи, в 1-м округе столицы"/>
+        </insert>
+        
+        <!-- Эрмитаж -->
+        <insert tableName="Museums">
+            <column name="Name" value="Эрмитаж"/>
+            <column name="Address" value="Дворцовая площадь, 2"/>
+            <column name="City" value="Санкт-Петербург"/>
+            <column name="Country" value="Россия"/>
+            <column name="FoundationDate" value="1764-01-01"/>
+            <column name="Description" value="Крупнейший в России и один из крупнейших в мире художественных и культурно-исторических музеев. Возник в 1764 году как частное собрание Екатерины II"/>
+        </insert>
+        
+        <!-- Третьяковская галерея -->
+        <insert tableName="Museums">
+            <column name="Name" value="Третьяковская галерея"/>
+            <column name="Address" value="Лаврушинский переулок, 10"/>
+            <column name="City" value="Москва"/>
+            <column name="Country" value="Россия"/>
+            <column name="FoundationDate" value="1856-01-01"/>
+            <column name="Description" value="Главный музей национального русского искусства, отражающий его уникальный вклад в мировую культуру. Галерея названа по имени основателя - купца Павла Третьякова"/>
+        </insert>
+        
+        <!-- Музей Ван Гога -->
+        <insert tableName="Museums">
+            <column name="Name" value="Музей Ван Гога"/>
+            <column name="Address" value="Museumplein 6, 1071 DJ"/>
+            <column name="City" value="Амстердам"/>
+            <column name="Country" value="Нидерланды"/>
+            <column name="FoundationDate" value="1973-06-02"/>
+            <column name="Description" value="Музей, посвящённый творчеству Винсента Ван Гога и его современников. В музее хранится самая большая коллекция картин и рисунков Ван Гога в мире"/>
+        </insert>
+        
+        <!-- Музей Прадо -->
+        <insert tableName="Museums">
+            <column name="Name" value="Музей Прадо"/>
+            <column name="Address" value="Calle de Ruiz de Alarcón, 23"/>
+            <column name="City" value="Мадрид"/>
+            <column name="Country" value="Испания"/>
+            <column name="FoundationDate" value="1819-11-19"/>
+            <column name="Description" value="Один из крупнейших и значимых музеев европейского изобразительного искусства, расположенный в Мадриде, Испания. В коллекции музея хранятся одни из наиболее полных собраний Босха, Веласкеса, Гойи, Мурильо, Сурбарана и Эль Греко"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="6" author="artgallery">
+        <comment>Добавление тестовых данных: Картины</comment>
+        
+        <!-- Мона Лиза -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Мона Лиза"/>
+            <column name="YearCreated" value="1503"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="77×53 см"/>
+            <column name="Description" value="Портрет Лизы дель Джокондо, супруги флорентийского торговца шёлком Франческо дель Джокондо. Картина является одним из самых известных произведений живописи в мире"/>
+            <column name="EstimatedValue" value="2500000000"/> <!-- 2.5 млрд долларов -->
+            <column name="ArtistId" value="1"/> <!-- Леонардо да Винчи -->
+            <column name="MuseumId" value="1"/> <!-- Лувр -->
+        </insert>
+        
+        <!-- Звёздная ночь -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Звёздная ночь"/>
+            <column name="YearCreated" value="1889"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="73.7×92.1 см"/>
+            <column name="Description" value="Один из самых известных пейзажей Винсента Ван Гога. Картина была написана художником в лечебнице Сен-Поль-де-Мозоль, где он находился после отрезания части уха"/>
+            <column name="EstimatedValue" value="100000000"/> <!-- 100 млн долларов -->
+            <column name="ArtistId" value="2"/> <!-- Ван Гог -->
+            <column name="MuseumId" value="4"/> <!-- Музей Ван Гога -->
+        </insert>
+        
+        <!-- Утро в сосновом лесу -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Утро в сосновом лесу"/>
+            <column name="YearCreated" value="1889"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="139×213 см"/>
+            <column name="Description" value="Известная картина русского художника Ивана Шишкина. Медведей на картине написал Константин Савицкий, который также подписал картину вместе с Шишкиным, но коллекционер Павел Третьяков стёр его подпись"/>
+            <column name="EstimatedValue" value="15000000"/> <!-- 15 млн долларов -->
+            <column name="ArtistId" value="4"/> <!-- Шишкин -->
+            <column name="MuseumId" value="3"/> <!-- Третьяковская галерея -->
+        </insert>
+        
+        <!-- Герника -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Герника"/>
+            <column name="YearCreated" value="1937"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="349.3×776.6 см"/>
+            <column name="Description" value="Картина Пабло Пикассо, написанная в мае 1937 года по заказу правительства Испанской Республики для испанского павильона на Всемирной выставке в Париже"/>
+            <column name="EstimatedValue" value="200000000"/> <!-- 200 млн долларов -->
+            <column name="ArtistId" value="3"/> <!-- Пикассо -->
+            <column name="MuseumId" value="5"/> <!-- Музей Прадо -->
+        </insert>
+        
+        <!-- Впечатление. Восходящее солнце -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Впечатление. Восходящее солнце"/>
+            <column name="YearCreated" value="1872"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="48×63 см"/>
+            <column name="Description" value="Картина Клода Моне, написанная в Гавре. С этой картины началось течение импрессионизма. Название «Impression, soleil levant» с лёгкой руки журналиста Л. Леруа стало именем художественного направления «импрессионизм»"/>
+            <column name="EstimatedValue" value="250000000"/> <!-- 250 млн долларов -->
+            <column name="ArtistId" value="5"/> <!-- Моне -->
+            <column name="MuseumId" value="1"/> <!-- Лувр -->
+        </insert>
+        
+        <!-- Подсолнухи -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Подсолнухи"/>
+            <column name="YearCreated" value="1888"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="92.1×73 см"/>
+            <column name="Description" value="Серия картин Винсента Ван Гога, изображающих подсолнухи. Художник создал две серии этих картин — первую в Париже в 1887 году, вторую — в Арле в 1888 году"/>
+            <column name="EstimatedValue" value="85000000"/> <!-- 85 млн долларов -->
+            <column name="ArtistId" value="2"/> <!-- Ван Гог -->
+            <column name="MuseumId" value="4"/> <!-- Музей Ван Гога -->
+        </insert>
+        
+        <!-- Девочка с персиками -->
+        <insert tableName="Paintings">
+            <column name="Title" value="Девочка с персиками"/>
+            <column name="YearCreated" value="1887"/>
+            <column name="Medium" value="0"/> <!-- Oil -->
+            <column name="Dimensions" value="91×85 см"/>
+            <column name="Description" value="Картина русского живописца Валентина Серова, написана в усадьбе Саввы Мамонтова Абрамцево. На портрете изображена двенадцатилетняя Вера Мамонтова"/>
+            <column name="EstimatedValue" value="30000000"/> <!-- 30 млн долларов -->
+            <column name="ArtistId" value="1"/> <!-- Для примера - Леонардо, в реальности Серов -->
+            <column name="MuseumId" value="3"/> <!-- Третьяковская галерея -->
+        </insert>
+    </changeSet>
+</databaseChangeLog>

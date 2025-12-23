@@ -1,0 +1,129 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1" author="artgallery">
+        <comment>Создание таблицы Artists (Художники)</comment>
+        <createTable tableName="Artists">
+            <column name="Id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="FirstName" type="NVARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LastName" type="NVARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="Biography" type="NTEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="BirthDate" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DeathDate" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="Country" type="NVARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CreatedAt" type="DATETIME" defaultValueComputed="GETDATE()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UpdatedAt" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="artgallery">
+        <comment>Создание таблицы Museums (Музеи)</comment>
+        <createTable tableName="Museums">
+            <column name="Id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="Name" type="NVARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="Address" type="NVARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="City" type="NVARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="Country" type="NVARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="Description" type="NTEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="FoundationDate" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CreatedAt" type="DATETIME" defaultValueComputed="GETDATE()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UpdatedAt" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="artgallery">
+        <comment>Создание таблицы Paintings (Картины)</comment>
+        <createTable tableName="Paintings">
+            <column name="Id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="Title" type="NVARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="YearCreated" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="Medium" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="Dimensions" type="NVARCHAR(50)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="Description" type="NTEXT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="EstimatedValue" type="DECIMAL(18,2)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="ArtistId" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MuseumId" type="INT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="CreatedAt" type="DATETIME" defaultValueComputed="GETDATE()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UpdatedAt" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="Paintings"
+            baseColumnNames="ArtistId"
+            referencedTableName="Artists"
+            referencedColumnNames="Id"
+            constraintName="FK_Paintings_Artists"
+            onDelete="CASCADE"/>
+            
+        <addForeignKeyConstraint 
+            baseTableName="Paintings"
+            baseColumnNames="MuseumId"
+            referencedTableName="Museums"
+            referencedColumnNames="Id"
+            constraintName="FK_Paintings_Museums"
+            onDelete="SET NULL"/>
+    </changeSet>
+</databaseChangeLog>

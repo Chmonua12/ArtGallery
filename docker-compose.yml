@@ -1,0 +1,23 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: artgallery-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+
+  artgallery-api:
+    build: .
+    container_name: artgallery-api
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=master;User Id=sa;Password=Password123;TrustServerCertificate=true;
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "5000:80"
+ы
