@@ -110,71 +110,9 @@ art/
 
 ## ER-диаграмма базы данных
 
-```
-┌─────────────┐
-│    User     │
-│ (Django)    │
-└──────┬──────┘
-       │
-       │ 1:1
-       ├─────────────────┐
-       │                 │
-       │                 │
-┌──────▼──────┐   ┌──────▼──────────┐
-│ UserProfile │   │ Artist          │
-├─────────────┤   ├─────────────────┤
-│ bio         │   │ first_name      │
-│ avatar      │   │ last_name       │
-│             │   │ biography       │
-│             │   │ country         │
-│             │   │ portrait        │
-│             │   │ avatar          │
-│             │   │ has_social_networks│
-│             │   │ instagram       │
-│             │   │ artstation      │
-└──────┬──────┘   └────────┬────────┘
-       │                    │
-       │ M:M                │ 1:N
-       │                    │
-       │            ┌───────▼────────┐
-       │            │   Painting    │
-       │            ├───────────────┤
-       │            │ title         │
-       │            │ year          │
-       │            │ technique     │
-       │            │ image         │
-       │            │ description   │
-       │            │ art_type      │
-       │            └───────┬───────┘
-       │                    │
-       │                    │ M:M
-       │                    │
-       │            ┌───────▼────────┐
-       │            │    Genre       │
-       │            ├───────────────┤
-       │            │ name          │
-       │            │ description   │
-       │            └───────────────┘
-       │
-       │ 1:1
-       │
-┌──────▼──────────┐
-│ UserPreference  │
-├─────────────────┤
-│ favorite_genres │ (M:M)
-│ favorite_artists│ (M:M)
-└─────────────────┘
+<img width="1208" height="509" alt="image" src="https://github.com/user-attachments/assets/d79b93c1-2d2c-4d1d-a156-d6daebc72529" />
 
-┌─────────────┐
-│    Book     │
-├─────────────┤
-│ title       │
-│ author      │
-│ description │
-│ cover       │
-│ pdf_file    │
-└─────────────┘
-```
+
 
 ### Описание связей:
 
