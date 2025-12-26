@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ArtVerse | Цифровая галерея{% endblock %}</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2d2d2d;
+            --secondary: #f5f5f5;
+            --accent: #6b6b6b;
+            --accent-hover: #555555;
+            --success: #5a5a5a;
+            --info: #6b6b6b;
+            --warning: #7a7a7a;
+            --text: #3a3a3a;
+            --text-light: #6b6b6b;
+            --card-bg: #fafafa;
+            --gradient: linear-gradient(135deg, #6b6b6b 0%, #4a4a4a 100%);
+            --gradient-light: linear-gradient(135deg, #7a7a7a 0%, #5a5a5a 100%);
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow-hover: 0 20px 50px rgba(0,0,0,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 50px;
+            --border: #d0d0d0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f0f0;
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Навигация */
+        .navbar {
+            background: rgba(250, 250, 250, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 1.2rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon i {
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        /* Основная навигация */
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Навигация пользователя */
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: 2rem;
+        }
+
+        .user-nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.2rem;
+            border-radius: var(--radius-xl);
+            border: 2px solid transparent;
+        }
+
+        .user-nav a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .user-nav a.btn-primary {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-nav a.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+            border-color: transparent;
+        }
+
+        .user-nav a.btn-outline {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .user-nav a.btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Выпадающее меню пользователя */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            border-color: var(--accent);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-hover);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1.2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+
+        .dropdown-header h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .dropdown-header p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.9rem 1.2rem;
+            text-decoration: none;
+            color: var(--text);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+            color: var(--accent);
+            padding-left: 1.5rem;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Сообщения */
+        .messages-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1002;
+            max-width: 400px;
+        }
+
+        .message {
+            background: white;
+            border-radius: var(--radius-md);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-hover);
+            border-left: 4px solid var(--success);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .message.success {
+            border-left-color: var(--success);
+        }
+
+        .message.error {
+            border-left-color: var(--accent);
+        }
+
+        .message.info {
+            border-left-color: var(--info);
+        }
+
+        .message.warning {
+            border-left-color: var(--warning);
+        }
+
+        .message-icon {
+            font-size: 1.2rem;
+        }
+
+        .message.success .message-icon {
+            color: var(--success);
+        }
+
+        .message.error .message-icon {
+            color: var(--accent);
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--text);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Основной контент */
+        main {
+            margin-top: 80px;
+            min-height: calc(100vh - 300px);
+        }
+
+        /* Кнопки */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.9rem 2rem;
+            text-decoration: none;
+            border-radius: var(--radius-xl);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-light {
+            background: white;
+            color: var(--text);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-light:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Секции */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            color: var(--primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--gradient);
+            margin: 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        /* Карточки */
+        .card {
+            background: #fafafa;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-image-container {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.02);
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .card-description {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .genre-tag {
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .year {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Футер */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-tagline {
+            color: #ccc;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 2rem;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 992px) {
+            .nav-container {
+                flex-wrap: wrap;
+            }
+            
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+                margin-top: 1rem;
+                gap: 1.5rem;
+            }
+            
+            .user-nav {
+                order: 2;
+                margin-left: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .user-nav {
+                gap: 1rem;
+            }
+            
+            .user-nav a {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .messages-container {
+                left: 1rem;
+                right: 1rem;
+                top: 70px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .user-nav {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.5rem;
+            }
+            
+            .user-nav a span {
+                display: none;
+            }
+            
+            .user-nav a i {
+                margin-right: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                ArtVerse
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Главная</a></li>
+                <li><a href="{% url 'painting_list' %}">Галерея</a></li>
+                <li><a href="{% url 'artist_list' %}">Художники</a></li>
+                <li><a href="{% url 'genre_list' %}">Жанры</a></li>
+                <li><a href="{% url 'book_list' %}">Книги</a></li>
+                
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'favorites' %}"><i class="fas fa-heart"></i> Избранное</a></li>
+                    <li><a href="{% url 'following' %}"><i class="fas fa-users"></i> Подписки</a></li>
+                {% endif %}
+            </ul>
+            
+            <div class="user-nav">
+                {% if user.is_authenticated %}
+                    <div class="user-dropdown">
+                        <div class="user-avatar" onclick="toggleDropdown()">
+                            {{ user.username|first|upper }}
+                        </div>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <div class="dropdown-header">
+                                <h4>{{ user.username }}</h4>
+                                <p>{{ user.email|default:"Нет email" }}</p>
+                            </div>
+                            <a href="{% url 'profile' %}" class="dropdown-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Профиль</span>
+                            </a>
+                            <a href="{% url 'favorites' %}" class="dropdown-item">
+                                <i class="fas fa-heart"></i>
+                                <span>Избранное</span>
+                            </a>
+                            <a href="{% url 'following' %}" class="dropdown-item">
+                                <i class="fas fa-users"></i>
+                                <span>Подписки</span>
+                            </a>
+                            <a href="{% url 'logout' %}" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Выйти</span>
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-outline">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Войти</span>
+                    </a>
+                    <a href="{% url 'register' %}" class="btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Регистрация</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Сообщения -->
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    <div class="message-icon">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle"></i>
+                        {% elif message.tags == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="message-content">{{ message }}</div>
+                    <button class="message-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Основной контент -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">ArtVerse</div>
+                <p class="footer-tagline">Цифровая галерея искусства</p>
+                <div class="footer-links">
+                    <a href="{% url 'home' %}">Главная</a>
+                    <a href="{% url 'painting_list' %}">Галерея</a>
+                    <a href="{% url 'artist_list' %}">Художники</a>
+                    <a href="{% url 'book_list' %}">Книги</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}">Профиль</a>
+                        <a href="{% url 'favorites' %}">Избранное</a>
+                    {% else %}
+                        <a href="{% url 'login' %}">Войти</a>
+                        <a href="{% url 'register' %}">Регистрация</a>
+                    {% endif %}
+                </div>
+                <p>Открывайте мир искусства через цифровые шедевры</p>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ArtVerse. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Выпадающее меню пользователя
+        function toggleDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Закрытие выпадающего меню при клике вне его
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const avatar = document.querySelector('.user-avatar');
+            
+            if (!avatar.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Автоматическое скрытие сообщений
+        setTimeout(() => {
+            document.querySelectorAll('.message').forEach(message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 300);
+            });
+        }, 5000);
+
+        // Функция для получения CSRF токена
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Плавная прокрутка
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerHeight = document.querySelector('.navbar').offsetHeight;
+                    const targetPosition = targetElement.offsetTop - headerHeight;
+                    
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

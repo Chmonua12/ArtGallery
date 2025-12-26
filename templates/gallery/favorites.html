@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Избранное - ArtVerse{% endblock %}
+
+{% block content %}
+<div class="favorites-container">
+    <div class="page-header" style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 2.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-heart" style="color: var(--accent);"></i> Избранное
+                </h1>
+                <p style="color: var(--text-light);">
+                    {{ paintings|length }} сохраненных работ
+                </p>
+            </div>
+            
+            <div class="actions" style="display: flex; gap: 1rem;">
+                <a href="{% url 'painting_list' %}" class="btn btn-outline">
+                    <i class="fas fa-plus"></i>
+                    Добавить еще
+                </a>
+                {% if paintings %}
+                    <button class="btn btn-light" onclick="clearFavorites()">
+                        <i class="fas fa-trash-alt"></i>
+                        Очистить все
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if paintings %}
+        <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2.5rem;">
+            {% for painting in paintings %}
+                <div class="card">
+                    <div class="card-image-container">
+                        {% if painting.image %}
+                            <img src="{{ painting.image.url }}" alt="{{ painting.title }}" class="card-image">
+                        {% else %}
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light);">
+                                <i class="fas fa-image" style="font-size: 4rem;"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Кнопка удаления из избранного -->
+                        <button class="remove-favorite-btn" 
+                                data-painting-id="{{ painting.id }}"
+                                style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); transition: all 0.3s ease;"
+                                title="Удалить из избранного">
+                            <i class="fas fa-times" style="color: var(--accent); font-size: 1.2rem;"></i>
+                        </button>
+                        
+                        <!-- Счетчик лайков -->
+                        <span style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.7); color: white; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">
+                            <i class="fas fa-heart" style="color: #ff6b6b; margin-right: 0.3rem;"></i>
+                            {{ painting.like_count }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-content">
+                        <h3 class="card-title">{{ painting.title }}</h3>
+                        <p class="card-subtitle">
+                            <a href="{% url 'artist_detail' painting.artist.pk %}" 
+                               style="color: var(--accent); text-decoration: none;">
+                                {{ painting.artist }}
+                            </a>
+                        </p>
+                        <p class="card-description">
+                            {{ painting.description|truncatechars:100 }}
+                        </p>
+                        
+                        <div class="card-meta">
+                            <span class="year">{{ painting.year }}</span>
+                            <span class="genre-tag">{{ painting.technique }}</span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'painting_detail' painting.pk %}" class="btn btn-outline" style="flex: 1; justify-content: center;">
+                                <i class="fas fa-expand"></i>
+                                Подробнее
+                            </a>
+                            <button class="remove-favorite-btn-sm" 
+                                    data-painting-id="{{ painting.id }}"
+                                    style="width: 45px; background: #ffebee; border: none; border-radius: var(--radius-md); cursor: pointer; color: var(--accent); display: flex; align-items: center; justify-content: center;"
+                                    title="Удалить">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Пагинация -->
+        {% if paintings.has_other_pages %}
+            <div style="display: flex; justify-content: center; margin-top: 4rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    {% if paintings.has_previous %}
+                        <a href="?page={{ paintings.previous_page_number }}" class="btn btn-light">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in paintings.paginator.page_range %}
+                        {% if num == paintings.number %}
+                            <span class="btn btn-primary">{{ num }}</span>
+                        {% elif num > paintings.number|add:'-3' and num < paintings.number|add:'3' %}
+                            <a href="?page={{ num }}" class="btn btn-light">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if paintings.has_next %}
+                        <a href="?page={{ paintings.next_page_number }}" class="btn btn-light">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+        
+        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+            <a href="{% url 'recommendations' %}" class="btn btn-primary">
+                <i class="fas fa-lightbulb"></i>
+                <span>Посмотреть рекомендации</span>
+            </a>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 4rem; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow);">
+            <div style="width: 120px; height: 120px; background: #ffebee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-heart" style="color: var(--accent); font-size: 3rem;"></i>
+            </div>
+            <h3 style="color: var(--text); margin-bottom: 1rem; font-size: 1.8rem;">
+                Ваше избранное пусто
+            </h3>
+            <p style="color: var(--text-light); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Добавляйте картины в избранное, чтобы легко вернуться к ним позже
+            </p>
+            <a href="{% url 'painting_list' %}" class="btn btn-primary">
+                <i class="fas fa-images"></i>
+                <span>Перейти в галерею</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка удаления из избранного
+        document.querySelectorAll('.remove-favorite-btn, .remove-favorite-btn-sm').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const paintingId = this.dataset.paintingId;
+                
+                if (confirm('Удалить эту картину из избранного?')) {
+                    fetch(`/painting/${paintingId}/favorite/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.favorited) {
+                            // Удаляем карточку из DOM
+                            const card = this.closest('.card');
+                            if (card) {
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.9)';
+                                setTimeout(() => card.remove(), 300);
+                            }
+                            
+                            // Обновляем счетчик
+                            const countElement = document.querySelector('.page-header p');
+                            if (countElement) {
+                                const currentCount = parseInt(countElement.textContent) - 1;
+                                countElement.textContent = `${currentCount} сохраненных работ`;
+                            }
+                            
+                            // Если не осталось картин, показываем сообщение
+                            setTimeout(() => {
+                                if (document.querySelectorAll('.card').length === 0) {
+                                    window.location.reload();
+                                }
+                            }, 500);
+                        }
+                    });
+                }
+            });
+        });
+    });
+    
+    function clearFavorites() {
+        if (confirm('Очистить все избранное? Это действие нельзя отменить.')) {
+            // Здесь можно добавить AJAX запрос для массового удаления
+            // Пока просто перезагружаем страницу
+            window.location.reload();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Книги по рисованию - ArtVerse | Цифровая галерея{% endblock %}
+
+{% block content %}
+<!-- Блок книг -->
+<section class="gallery-section">
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="gallery-header">
+            <h1 class="gallery-title">Книги по рисованию</h1>
+            
+            <p class="gallery-subtitle">
+                Коллекция книг и учебных материалов по изобразительному искусству
+            </p>
+        </div>
+        
+        <!-- Сетка книг -->
+        <div class="paintings-grid">
+            {% for book in books %}
+            <div class="painting-card">
+                <div class="painting-image-wrapper">
+                    {% if book.cover %}
+                    <a href="{% url 'book_detail' book.pk %}" class="image-link">
+                        <img src="{{ book.cover.url }}" 
+                             alt="{{ book.title }}" 
+                             class="painting-image"
+                             loading="lazy">
+                    </a>
+                    {% else %}
+                    <div class="no-image-placeholder">
+                        <i class="fas fa-book"></i>
+                        <span>Обложка отсутствует</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="painting-info">
+                    <h3 class="painting-title">
+                        <a href="{% url 'book_detail' book.pk %}" class="title-link">
+                            {{ book.title }}
+                        </a>
+                    </h3>
+                    
+                    <div class="painting-meta">
+                        <span class="artist-link">
+                            <i class="fas fa-user"></i>
+                            {{ book.author }}
+                        </span>
+                    </div>
+                    
+                    {% if book.description %}
+                    <p class="book-description">{{ book.description|truncatewords:20 }}</p>
+                    {% endif %}
+                    
+                    <a href="{% url 'book_detail' book.pk %}" class="view-details-btn">
+                        <i class="fas fa-book-open"></i>
+                        Читать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-paintings-message">
+                <div class="message-content">
+                    <i class="fas fa-book"></i>
+                    <h3>Книги еще не добавлены</h3>
+                    <p>Начните добавлять книги в вашу коллекцию</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Пагинация -->
+        {% if books.has_other_pages %}
+        <div class="pagination">
+            {% if books.has_previous %}
+            <a href="?page={{ books.previous_page_number }}" 
+               class="pagination-btn prev">
+                <i class="fas fa-chevron-left"></i>
+                Назад
+            </a>
+            {% endif %}
+            
+            <div class="page-numbers">
+                {% for num in books.paginator.page_range %}
+                    {% if books.number == num %}
+                    <span class="page-number active">{{ num }}</span>
+                    {% elif num > books.number|add:'-3' and num < books.number|add:'3' %}
+                    <a href="?page={{ num }}" 
+                       class="page-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if books.has_next %}
+            <a href="?page={{ books.next_page_number }}" 
+               class="pagination-btn next">
+                Вперед
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.book-description {
+    color: #6b6b6b;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0.8rem 0;
+}
+</style>
+{% endblock %}
+

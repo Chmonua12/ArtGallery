@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}  <!-- ДОБАВЬТЕ ЭТУ СТРОКУ -->
+{% block title %}{{ painting.title }} | {{ painting.artist }} | ArtVerse{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Хлебные крошки -->
+            <nav style="margin-bottom: 2rem;">
+                <a href="{% url 'home' %}" style="color: var(--text-light); text-decoration: none;">Главная</a>
+                <span style="margin: 0 0.5rem; color: var(--text-light);">/</span>
+                <a href="{% url 'painting_list' %}" style="color: var(--text-light); text-decoration: none;">Галерея</a>
+                <span style="margin: 0 0.5rem; color: var(--text-light);">/</span>
+                <span style="color: var(--primary);">{{ painting.title }}</span>
+            </nav>
+
+            <div class="card">
+                <div class="card-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 2rem;">
+                        <!-- Изображение картины -->
+                        <div>
+                            {% if painting.image %}
+                            <img src="{{ painting.image.url }}" alt="{{ painting.title }}" 
+                                 style="width: 100%; border-radius: 15px; box-shadow: var(--shadow);">
+                            {% else %}
+                            <div style="height: 400px; background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; border-radius: 15px;">
+                                <i class="fas fa-image" style="font-size: 3rem;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Информация о картине -->
+                        <div>
+                            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary);">
+                                {{ painting.title }}
+                            </h1>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--accent);">
+                                    <a href="{% url 'artist_detail' painting.artist.pk %}" 
+                                       style="color: var(--accent); text-decoration: none;">
+                                        {{ painting.artist }}
+                                    </a>
+                                </h2>
+                                <p style="color: var(--text-light); margin-bottom: 1rem;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ painting.artist.country }}
+                                </p>
+                            </div>
+
+                            <!-- Система лайков и избранного -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; padding: 1.5rem; background: #f0f0f0; border-radius: 15px;">
+                                <div>
+                                    <span class="like-count" id="like-count-{{ painting.pk }}" 
+                                          style="font-size: 1.2rem; font-weight: 600; color: var(--primary);">
+                                        {{ painting.like_count }} лайков
+                                    </span>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    {% if user.is_authenticated %}
+                                    <button class="like-btn {% if is_liked %}liked{% endif %}" 
+                                            data-painting-id="{{ painting.pk }}"
+                                            data-like-url="{% url 'like_painting' painting.pk %}"
+                                            style="background: none; border: none; cursor: pointer; font-size: 1.8rem; transition: all 0.3s ease;">
+                                        <i class="fas fa-heart {% if is_liked %}text-red-500{% else %}text-gray-400{% endif %}" 
+                                           style="transition: all 0.3s ease;"></i>
+                                    </button>
+                                    <button class="favorite-btn {% if is_favorite %}favorited{% endif %}" 
+                                            data-painting-id="{{ painting.pk }}"
+                                            onclick="toggleFavorite({{ painting.pk }})"
+                                            style="background: none; border: none; cursor: pointer; font-size: 1.8rem; transition: all 0.3s ease;">
+                                        <i class="fas fa-bookmark {% if is_favorite %}text-yellow-500{% else %}text-gray-400{% endif %}" 
+                                           style="transition: all 0.3s ease;"></i>
+                                    </button>
+                                    {% else %}
+                                    <a href="{% url 'login' %}" 
+                                       style="color: #6b6b6b; text-decoration: none; font-size: 1.8rem;">
+                                        <i class="fas fa-heart"></i>
+                                    </a>
+                                    <a href="{% url 'login' %}" 
+                                       style="color: #6b6b6b; text-decoration: none; font-size: 1.8rem;">
+                                        <i class="fas fa-bookmark"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Детали картины -->
+                            <div style="background: #f0f0f0; padding: 1.5rem; border-radius: 15px;">
+                                <h3 style="margin-bottom: 1rem; color: var(--primary);">Детали работы</h3>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <p><strong>Год создания:</strong> {{ painting.year }}</p>
+                                        <p><strong>Техника:</strong> {{ painting.technique }}</p>
+                                    </div>
+                                    <div>
+                                        {% if painting.dimensions %}
+                                        <p><strong>Размеры:</strong> {{ painting.dimensions }}</p>
+                                        {% endif %}
+                                        {% if painting.location %}
+                                        <p><strong>Местонахождение:</strong> {{ painting.location }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Жанры -->
+                                <div style="margin-top: 1rem;">
+                                    <strong>Жанры:</strong>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                                        {% for genre in painting.genres.all %}
+                                        <a href="{% url 'genre_detail' genre.pk %}" 
+                                           class="genre-tag" 
+                                           style="text-decoration: none;">
+                                            {{ genre.name }}
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Описание картины -->
+                    {% if painting.description %}
+                    <div style="margin: 2rem 0;">
+                        <h3 style="margin-bottom: 1rem; color: var(--primary);">Описание</h3>
+                        <p style="line-height: 1.8; color: var(--text); font-size: 1.1rem;">
+                            {{ painting.description }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Кнопка назад -->
+                    <div style="text-align: center; margin-top: 3rem;">
+                        <a href="{% url 'painting_list' %}" class="btn btn-outline" 
+                           style="background: transparent; border: 2px solid var(--accent); color: var(--accent);">
+                            <i class="fas fa-arrow-left"></i>
+                            Назад к галерее
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Рекомендации -->
+            {% if user.is_authenticated and recommendations %}
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Вам может понравиться</h2>
+                <div class="grid">
+                    {% for rec_painting in recommendations %}
+                    <div class="card">
+                        {% if rec_painting.image %}
+                        <img src="{{ rec_painting.image.url }}" alt="{{ rec_painting.title }}" class="card-image">
+                        {% endif %}
+                        <div class="card-content">
+                            <h3 class="card-title">{{ rec_painting.title }}</h3>
+                            <p class="card-subtitle">
+                                <a href="{% url 'artist_detail' rec_painting.artist.pk %}" 
+                                   style="color: var(--accent); text-decoration: none;">
+                                    {{ rec_painting.artist }}
+                                </a>
+                            </p>
+                            <div class="card-meta">
+                                <span class="genre-tag">
+                                    {% for genre in rec_painting.genres.all %}
+                                        {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span class="year">{{ rec_painting.year }}</span>
+                            </div>
+                            <a href="{% url 'painting_detail' rec_painting.pk %}" class="btn" 
+                               style="width: 100%; text-align: center; justify-content: center; margin-top: 1rem;">
+                                <i class="fas fa-eye"></i>
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Лайки картин
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const paintingId = this.dataset.paintingId;
+            const likeUrl = this.dataset.likeUrl;
+            
+            fetch(likeUrl, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const heartIcon = this.querySelector('i');
+                const likeCount = document.getElementById(`like-count-${paintingId}`);
+                
+                if (data.liked) {
+                    this.classList.add('liked');
+                    heartIcon.classList.remove('text-gray-400');
+                    heartIcon.classList.add('text-red-500');
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => { this.style.transform = 'scale(1)'; }, 300);
+                } else {
+                    this.classList.remove('liked');
+                    heartIcon.classList.remove('text-red-500');
+                    heartIcon.classList.add('text-gray-400');
+                }
+                
+                likeCount.textContent = `${data.like_count} лайков`;
+            });
+        });
+    }
+    
+    // Функция для получения CSRF токена
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Обработка избранного
+    window.toggleFavorite = async function(paintingId) {
+        const favoriteBtn = document.querySelector(`.favorite-btn[data-painting-id="${paintingId}"]`);
+        
+        try {
+            const response = await fetch(`/painting/${paintingId}/favorite/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const isFavorited = data.favorited;
+                const icon = favoriteBtn.querySelector('i');
+                
+                if (isFavorited) {
+                    favoriteBtn.classList.add('favorited');
+                    icon.classList.remove('text-gray-400');
+                    icon.classList.add('text-yellow-500');
+                } else {
+                    favoriteBtn.classList.remove('favorited');
+                    icon.classList.remove('text-yellow-500');
+                    icon.classList.add('text-gray-400');
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+});
+</script>
+
+<style>
+.text-red-500 { color: #ef4444 !important; }
+.text-gray-400 { color: #9ca3af !important; }
+.text-yellow-500 { color: #f59e0b !important; }
+
+.like-btn:hover {
+    transform: scale(1.1) !important;
+}
+
+.like-btn.liked {
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.genre-tag {
+    background: var(--gradient);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    .card-content > div {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ book.title }} | ArtVerse{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Хлебные крошки -->
+            <nav style="margin-bottom: 2rem;">
+                <a href="{% url 'home' %}" style="color: var(--text-light); text-decoration: none;">Главная</a>
+                <span style="margin: 0 0.5rem; color: var(--text-light);">/</span>
+                <a href="{% url 'book_list' %}" style="color: var(--text-light); text-decoration: none;">Книги</a>
+                <span style="margin: 0 0.5rem; color: var(--text-light);">/</span>
+                <span style="color: var(--primary);">{{ book.title }}</span>
+            </nav>
+
+            <div class="card">
+                <div class="card-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 2rem;">
+                        <!-- Обложка книги -->
+                        <div>
+                            {% if book.cover %}
+                            <img src="{{ book.cover.url }}" alt="{{ book.title }}" 
+                                 style="width: 100%; border-radius: 15px; box-shadow: var(--shadow);">
+                            {% else %}
+                            <div style="height: 400px; background: var(--gradient); display: flex; align-items: center; justify-content: center; color: white; border-radius: 15px;">
+                                <i class="fas fa-book" style="font-size: 3rem;"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Информация о книге -->
+                        <div>
+                            <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary);">
+                                {{ book.title }}
+                            </h1>
+                            
+                            <div style="margin-bottom: 2rem;">
+                                <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--accent);">
+                                    <i class="fas fa-user"></i>
+                                    {{ book.author }}
+                                </h2>
+                            </div>
+
+                            <!-- Кнопка скачать/читать -->
+                            <div style="margin: 2rem 0; padding: 1.5rem; background: #f0f0f0; border-radius: 15px;">
+                                {% if book.pdf_file %}
+                                <a href="{{ book.pdf_file.url }}" 
+                                   target="_blank"
+                                   class="btn btn-primary" 
+                                   style="width: 100%; text-align: center; justify-content: center; display: flex; gap: 0.5rem;">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span>Открыть PDF</span>
+                                </a>
+                                {% else %}
+                                <p style="color: var(--text-light);">PDF файл недоступен</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Детали книги -->
+                            <div style="background: #f0f0f0; padding: 1.5rem; border-radius: 15px;">
+                                <h3 style="margin-bottom: 1rem; color: var(--primary);">Информация</h3>
+                                <div style="display: grid; gap: 0.8rem;">
+                                    <div>
+                                        <strong>Автор:</strong> {{ book.author }}
+                                    </div>
+                                    {% if book.created_at %}
+                                    <div>
+                                        <strong>Дата добавления:</strong> {{ book.created_at|date:"d.m.Y" }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Описание книги -->
+                    {% if book.description %}
+                    <div style="margin: 2rem 0;">
+                        <h3 style="margin-bottom: 1rem; color: var(--primary);">Описание</h3>
+                        <p style="line-height: 1.8; color: var(--text); font-size: 1.1rem;">
+                            {{ book.description }}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Кнопка назад -->
+                    <div style="text-align: center; margin-top: 3rem;">
+                        <a href="{% url 'book_list' %}" class="btn btn-outline" 
+                           style="background: transparent; border: 2px solid var(--accent); color: var(--accent);">
+                            <i class="fas fa-arrow-left"></i>
+                            Назад к книгам
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Похожие книги -->
+            {% if similar_books %}
+            <div style="margin-top: 4rem;">
+                <h2 class="section-title" style="font-size: 2rem;">Похожие книги</h2>
+                <div class="paintings-grid">
+                    {% for similar_book in similar_books %}
+                    <div class="painting-card">
+                        {% if similar_book.cover %}
+                        <div class="painting-image-wrapper">
+                            <a href="{% url 'book_detail' similar_book.pk %}" class="image-link">
+                                <img src="{{ similar_book.cover.url }}" 
+                                     alt="{{ similar_book.title }}" 
+                                     class="painting-image"
+                                     loading="lazy">
+                            </a>
+                        </div>
+                        {% endif %}
+                        <div class="painting-info">
+                            <h3 class="painting-title">
+                                <a href="{% url 'book_detail' similar_book.pk %}" class="title-link">
+                                    {{ similar_book.title }}
+                                </a>
+                            </h3>
+                            <div class="painting-meta">
+                                <span class="artist-link">
+                                    <i class="fas fa-user"></i>
+                                    {{ similar_book.author }}
+                                </span>
+                            </div>
+                            <a href="{% url 'book_detail' similar_book.pk %}" class="view-details-btn">
+                                <i class="fas fa-book-open"></i>
+                                Читать
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,2465 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ArtVerse | Цифровая галерея классического и современного искусства{% endblock %}
+
+<style>
+    /* Глобальные стили */
+    body {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+        font-family: 'Playfair Display', serif;
+    }
+</style>
+
+{% block hero %}
+    <!-- Анимированный художественный хедер -->
+    <section class="art-hero">
+        <!-- Анимированные художественные элементы -->
+        <div class="paint-splatters">
+            <div class="splatter splatter-1"></div>
+            <div class="splatter splatter-2"></div>
+            <div class="splatter splatter-3"></div>
+            <div class="splatter splatter-4"></div>
+        </div>
+        
+        <div class="container">
+            <div class="hero-content">
+                <!-- Анимированный логотип с художественным эффектом -->
+                <div class="art-logo-wrapper">
+                    <div class="art-logo">A</div>
+                    <div class="logo-paint"></div>
+                    <div class="logo-brush"></div>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="title-word title-word-1">Art</span>
+                    <span class="title-word title-word-2">Verse</span>
+                </h1>
+                <p class="hero-subtitle">Исследуйте мир искусства через века: от шедевров старых мастеров до инноваций современных художников</p>
+            </div>
+        </div>
+        
+        <!-- Кнопки навигации (опущены вниз) -->
+        <div class="hero-nav-buttons">
+            <div class="container">
+                <div class="art-buttons">
+                    <a href="#classical" class="paint-btn classical-btn">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <span>Классическая живопись</span>
+                        </span>
+                        <span class="paint-effect"></span>
+                    </a>
+                    
+                    <a href="#modern" class="paint-btn modern-btn">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <span>Современное искусство</span>
+                        </span>
+                        <span class="paint-effect"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Индикатор скролла -->
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Прокрутите вниз</span>
+        </div>
+    </section>
+{% endblock %}
+
+{% block content %}
+    <!-- Блок классической живописи -->
+    <section id="classical" class="art-section classical-section">
+        <!-- Фоновое изображение с красивым градиентом (без перехода) -->
+        <div class="section-bg-overlay">
+            <div class="section-bg classical-bg"></div>
+            <div class="bg-gradient classical-gradient"></div>
+        </div>
+        
+        <div class="container">
+            <!-- Улучшенная подпись с анимацией -->
+            <div class="section-header animated-header">
+                <div class="section-icon-wrapper">
+                    <div class="section-icon"></div>
+                    <div class="icon-ring"></div>
+                </div>
+                
+                <div class="title-wrapper">
+                    <h2 class="section-title">
+                        <span class="title-text">Классическая живопись</span>
+                        <span class="title-underline"></span>
+                    </h2>
+                    <div class="title-decoration">
+                        <div class="decoration-left"></div>
+                        <div class="decoration-center">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="decoration-right"></div>
+                    </div>
+                </div>
+                
+                <p class="section-subtitle">
+                    <span class="subtitle-word">Шедевры</span>
+                    <span class="subtitle-word">старых</span>
+                    <span class="subtitle-word">мастеров</span>
+                    <span class="subtitle-word">и</span>
+                    <span class="subtitle-word">вечная</span>
+                    <span class="subtitle-word">красота</span>
+                    <span class="subtitle-word">традиционного</span>
+                    <span class="subtitle-word">искусства</span>
+                </p>
+            </div>
+            
+            <!-- Проверка наличия картин -->
+            {% if classical_paintings %}
+                <!-- Карусель для классических картин -->
+                <div class="carousel-container" id="classical-carousel">
+                    <div class="carousel-inner" id="classical-track">
+                        {% for painting in classical_paintings %}
+                            <div class="carousel-item painting-slide {% if forloop.counter == 3 %}active{% endif %}" data-index="{{ forloop.counter }}">
+                                <div class="painting-card classical">
+                                    <div class="painting-frame">
+                                        <div class="painting-image-wrapper">
+                                            {% if painting.image %}
+                                                <img src="{{ painting.image.url }}" alt="{{ painting.title }}" class="painting-image" onload="checkImageOrientation(this)">
+                                            {% else %}
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="painting-glow"></div>
+                                        </div>
+                                        <div class="painting-info">
+                                            <h3 class="painting-title">{{ painting.title }}</h3>
+                                            <p class="painting-artist">{{ painting.artist }}</p>
+                                            <p class="painting-details">{{ painting.year }} • {{ painting.technique }}</p>
+                                        </div>
+                                        <div class="painting-actions">
+                                            <a href="{% url 'painting_detail' painting.pk %}" class="paint-btn detail-btn">
+                                                <span class="btn-bg"></span>
+                                                <span class="btn-content">
+                                                    <i class="fas fa-expand"></i>
+                                                    <span>Подробнее</span>
+                                                </span>
+                                            </a>
+                                            {% if user.is_authenticated %}
+                                                <button class="like-btn" data-painting-id="{{ painting.pk }}">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Художественные кнопки навигации -->
+                    <button class="paint-nav-btn prev-button" onclick="prevSlide('classical')">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </button>
+                    <button class="paint-nav-btn next-button" onclick="nextSlide('classical')">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </button>
+                    
+                    <!-- Индикаторы (точки) -->
+                    <div class="indicators" id="classical-dots">
+                        {% for painting in classical_paintings %}
+                            <div class="dot {% if forloop.counter == 3 %}active{% endif %}" onclick="goToSlide('classical', {{ forloop.counter0 }})">
+                                <span class="dot-inner"></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Сообщение, если нет картин -->
+                <div class="no-paintings-message">
+                    <div class="message-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Классические картины еще не добавлены</h3>
+                    <a href="/admin/gallery/painting/add/" class="paint-btn">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-plus"></i>
+                            <span>Добавить картину</span>
+                        </span>
+                    </a>
+                </div>
+            {% endif %}
+            
+            <div class="section-footer">
+                <a href="{% url 'painting_list' %}?type=classical" class="paint-btn view-all-btn">
+                    <span class="btn-bg"></span>
+                    <span class="btn-content">
+                        <i class="fas fa-images"></i>
+                        <span>Все классические работы</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Блок современного искусства -->
+    <section id="modern" class="art-section modern-section">
+        <!-- Фоновое изображение с красивым градиентом (без перехода) -->
+        <div class="section-bg-overlay">
+            <div class="section-bg modern-bg"></div>
+            <div class="bg-gradient modern-gradient"></div>
+        </div>
+        
+        <div class="container">
+            <!-- Улучшенная подпись с анимацией -->
+            <div class="section-header animated-header">
+                <div class="section-icon-wrapper">
+                    <div class="section-icon"></div>
+                    <div class="icon-ring"></div>
+                </div>
+                
+                <div class="title-wrapper">
+                    <h2 class="section-title">
+                        <span class="title-text">Современное искусство</span>
+                        <span class="title-underline"></span>
+                    </h2>
+                    <div class="title-decoration">
+                        <div class="decoration-left"></div>
+                        <div class="decoration-center">
+                            <i class="fas fa-brush"></i>
+                        </div>
+                        <div class="decoration-right"></div>
+                    </div>
+                </div>
+                
+                <p class="section-subtitle">
+                    <span class="subtitle-word">Инновации</span>
+                    <span class="subtitle-word">эксперименты</span>
+                    <span class="subtitle-word">и</span>
+                    <span class="subtitle-word">искусство</span>
+                    <span class="subtitle-word">цифровой</span>
+                    <span class="subtitle-word">эпохи</span>
+                </p>
+            </div>
+            
+            <!-- Проверка наличия картин -->
+            {% if modern_paintings %}
+                <!-- Карусель для современных картин -->
+                <div class="carousel-container" id="modern-carousel">
+                    <div class="carousel-inner" id="modern-track">
+                        {% for painting in modern_paintings %}
+                            <div class="carousel-item painting-slide {% if forloop.counter == 3 %}active{% endif %}" data-index="{{ forloop.counter }}">
+                                <div class="painting-card modern">
+                                    <div class="painting-frame">
+                                        <div class="painting-image-wrapper">
+                                            {% if painting.image %}
+                                                <img src="{{ painting.image.url }}" alt="{{ painting.title }}" class="painting-image" onload="checkImageOrientation(this)">
+                                            {% else %}
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div class="modern-badge">
+                                                <i class="fas fa-star"></i>
+                                                MODERN ART
+                                            </div>
+                                            <div class="painting-glow"></div>
+                                        </div>
+                                        <div class="painting-info">
+                                            <h3 class="painting-title">{{ painting.title }}</h3>
+                                            <p class="painting-artist">{{ painting.artist }}</p>
+                                            <p class="painting-details">{{ painting.year }} • {{ painting.technique }}</p>
+                                        </div>
+                                        <div class="painting-actions">
+                                            <a href="{% url 'painting_detail' painting.pk %}" class="paint-btn detail-btn">
+                                                <span class="btn-bg"></span>
+                                                <span class="btn-content">
+                                                    <i class="fas fa-expand"></i>
+                                                    <span>Подробнее</span>
+                                                </span>
+                                            </a>
+                                            {% if user.is_authenticated %}
+                                                <button class="like-btn" data-painting-id="{{ painting.pk }}">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Художественные кнопки навигации -->
+                    <button class="paint-nav-btn prev-button" onclick="prevSlide('modern')">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
+                    </button>
+                    <button class="paint-nav-btn next-button" onclick="nextSlide('modern')">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </button>
+                    
+                    <!-- Индикаторы (точки) -->
+                    <div class="indicators" id="modern-dots">
+                        {% for painting in modern_paintings %}
+                            <div class="dot {% if forloop.counter == 3 %}active{% endif %}" onclick="goToSlide('modern', {{ forloop.counter0 }})">
+                                <span class="dot-inner"></span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <!-- Сообщение, если нет картин -->
+                <div class="no-paintings-message">
+                    <div class="message-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Современные картины еще не добавлены</h3>
+                    <a href="/admin/gallery/painting/add/" class="paint-btn">
+                        <span class="btn-bg"></span>
+                        <span class="btn-content">
+                            <i class="fas fa-plus"></i>
+                            <span>Добавить картину</span>
+                        </span>
+                    </a>
+                </div>
+            {% endif %}
+            
+            <div class="section-footer">
+                <a href="{% url 'painting_list' %}?type=modern" class="paint-btn view-all-btn">
+                    <span class="btn-bg"></span>
+                    <span class="btn-content">
+                        <i class="fas fa-images"></i>
+                        <span>Все современные работы</span>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Блок художников в художественном стиле -->
+    <section class="artists-section">
+        <div class="container">
+            <div class="artists-header">
+                <div class="header-decoration">
+                    <div class="brush-stroke"></div>
+                    <h2 class="section-title">Наши художники</h2>
+                    <div class="brush-stroke reverse"></div>
+                </div>
+                <p class="section-subtitle">Талантливые мастера, создающие шедевры</p>
+            </div>
+            
+            {% if artists %}
+                <div class="artists-grid">
+                    {% for artist in artists %}
+                        <div class="artist-card">
+                            <div class="artist-card-inner">
+                                <div class="artist-avatar-wrapper">
+                                    {% if artist.get_avatar %}
+                                        <img src="{{ artist.get_avatar.url }}" alt="{{ artist.first_name }} {{ artist.last_name }}" class="artist-avatar">
+                                        <div class="avatar-frame"></div>
+                                        <div class="avatar-paint"></div>
+                                    {% else %}
+                                        <div class="artist-avatar default">
+                                            {{ artist.first_name|first }}{{ artist.last_name|first }}
+                                        </div>
+                                        <div class="avatar-frame"></div>
+                                        <div class="avatar-paint"></div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="artist-info">
+                                    <h3>{{ artist.first_name }} {{ artist.last_name }}</h3>
+                                    <p class="artist-country">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ artist.country }}
+                                    </p>
+                                    <p class="artist-bio">{{ artist.biography|truncatewords:25 }}</p>
+                                    
+                                    <div class="artist-stats">
+                                        <span class="stat">
+                                            <i class="fas fa-palette"></i>
+                                            {{ artist.paintings.count }} работ
+                                        </span>
+                                        <span class="stat">
+                                            <i class="fas fa-star"></i>
+                                            {{ artist.style }}
+                                        </span>
+                                    </div>
+                                    
+                                    <a href="{% url 'artist_detail' artist.pk %}" class="paint-btn artist-btn">
+                                        <span class="btn-bg"></span>
+                                        <span class="btn-content">
+                                            <i class="fas fa-user-circle"></i>
+                                            <span>Профиль художника</span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Художественные элементы карточки -->
+                            <div class="card-splatter"></div>
+                            <div class="card-brush"></div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-artists-message">
+                    <div class="message-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <p>Художники еще не добавлены</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <style>
+        /* ===== ХУДОЖЕСТВЕННЫЙ ХЕДЕР ===== */
+        .art-hero {
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 10, 0.95) 0%,
+                rgba(20, 20, 20, 0.9) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding-bottom: 200px; /* Добавлено место для кнопок */
+        }
+
+        /* Анимированные брызги краски */
+        .paint-splatters {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .splatter {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(20px);
+            animation: float 20s infinite linear;
+        }
+
+        .splatter-1 {
+            top: 10%;
+            left: 10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #8B4513 0%, transparent 70%);
+            animation-delay: 0s;
+        }
+
+        .splatter-2 {
+            top: 60%;
+            right: 15%;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #9C27B0 0%, transparent 70%);
+            animation-delay: -5s;
+        }
+
+        .splatter-3 {
+            bottom: 20%;
+            left: 20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #FFD700 0%, transparent 70%);
+            animation-delay: -10s;
+        }
+
+        .splatter-4 {
+            top: 30%;
+            right: 30%;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #00FFFF 0%, transparent 70%);
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, -20px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 20px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-20px, 0) rotate(270deg);
+            }
+        }
+
+        /* Логотип с художественными эффектами */
+        .art-logo-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+        }
+
+        .art-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 8rem;
+            color: white;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            animation: logoGlow 3s infinite alternate;
+        }
+
+        .logo-paint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #8B4513 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            opacity: 0.3;
+            filter: blur(15px);
+            animation: paintPulse 4s infinite alternate;
+        }
+
+        .logo-brush {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 180px;
+            height: 180px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: brushRotate 20s infinite linear;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+                             0 0 40px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+                             0 0 60px rgba(255, 255, 255, 0.3),
+                             0 0 90px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes paintPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.2;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes brushRotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* Заголовок */
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .title-word {
+            display: inline-block;
+            position: relative;
+        }
+
+        .title-word-1 {
+            color: #FFD700;
+            animation: titleSlideLeft 1s ease-out;
+        }
+
+        .title-word-2 {
+            color: #9C27B0;
+            animation: titleSlideRight 1s ease-out 0.3s both;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        /* ===== КНОПКИ НАВИГАЦИИ (ОПУЩЕНЫ ВНИЗ) ===== */
+        .hero-nav-buttons {
+            position: absolute;
+            bottom: 100px;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            padding: 20px 0;
+        }
+
+        .art-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideUpButtons 1.2s ease-out 0.8s both;
+        }
+
+        @keyframes slideUpButtons {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== ХУДОЖЕСТВЕННЫЕ КНОПКИ ===== */
+        .paint-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.2rem 2.5rem;
+            text-decoration: none;
+            border: none;
+            border-radius: 15px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 250px;
+            transform-style: preserve-3d;
+        }
+
+        .paint-btn .btn-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--btn-color-1), var(--btn-color-2));
+            z-index: 1;
+            transition: all 0.3s ease;
+            border-radius: 15px;
+        }
+
+        .paint-btn .btn-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .paint-btn .paint-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+            z-index: 1;
+        }
+
+        .paint-btn:hover {
+            transform: translateY(-5px) translateZ(10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .paint-btn:hover .paint-effect {
+            width: 400px;
+            height: 400px;
+        }
+
+        .paint-btn:hover .btn-content {
+            transform: scale(1.05);
+        }
+
+        .paint-btn:active {
+            transform: translateY(-2px);
+        }
+
+        /* Цвета кнопок */
+        .classical-btn {
+            --btn-color-1: #8B4513;
+            --btn-color-2: #D2691E;
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.4);
+        }
+
+        .modern-btn {
+            --btn-color-1: #9C27B0;
+            --btn-color-2: #673AB7;
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.4);
+        }
+
+        /* ===== УЛУЧШЕННЫЕ ПОДПИСИ С АНИМАЦИЕЙ ===== */
+        .animated-header {
+            text-align: center;
+            margin-bottom: 5rem;
+            padding: 0 1rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        .animated-header.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-icon-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .section-icon {
+            font-size: 5rem;
+            position: relative;
+            z-index: 2;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        .classical-section .section-icon {
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .modern-section .section-icon {
+            color: #00FFFF;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .icon-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 2px solid;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ringRotate 20s linear infinite;
+        }
+
+        .classical-section .icon-ring {
+            border-color: #FFD700;
+        }
+
+        .modern-section .icon-ring {
+            border-color: #00FFFF;
+        }
+
+        .icon-sparkles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: currentColor;
+            border-radius: 50%;
+            animation: sparkleTwinkle 2s infinite;
+        }
+
+        .sparkle-1 { top: 10%; left: 10%; animation-delay: 0s; }
+        .sparkle-2 { top: 10%; right: 10%; animation-delay: 0.5s; }
+        .sparkle-3 { bottom: 10%; left: 10%; animation-delay: 1s; }
+        .sparkle-4 { bottom: 10%; right: 10%; animation-delay: 1.5s; }
+
+        .title-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 4.2rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+            letter-spacing: 1.5px;
+        }
+
+        .title-text {
+            background: linear-gradient(to right, #ffffff, #f8f9fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        .title-underline {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            animation: underlineExpand 1.2s ease-out 0.5s forwards;
+        }
+
+        .classical-section .title-underline {
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        }
+
+        .modern-section .title-underline {
+            background: linear-gradient(90deg, transparent, #00FFFF, transparent);
+        }
+
+        .title-decoration {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+
+        .decoration-left,
+        .decoration-right {
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            animation: decorationPulse 3s infinite alternate;
+        }
+
+        .decoration-center {
+            font-size: 1.5rem;
+            color: currentColor;
+            animation: centerBounce 2s infinite;
+        }
+
+        .classical-section .decoration-left,
+        .classical-section .decoration-right,
+        .classical-section .decoration-center {
+            color: #FFD700;
+        }
+
+        .modern-section .decoration-left,
+        .modern-section .decoration-right,
+        .modern-section .decoration-center {
+            color: #00FFFF;
+        }
+
+        .section-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.95);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+            font-weight: 300;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .subtitle-word {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: wordReveal 0.5s ease-out forwards;
+        }
+
+        .subtitle-word:nth-child(1) { animation-delay: 0.8s; }
+        .subtitle-word:nth-child(2) { animation-delay: 0.9s; }
+        .subtitle-word:nth-child(3) { animation-delay: 1.0s; }
+        .subtitle-word:nth-child(4) { animation-delay: 1.1s; }
+        .subtitle-word:nth-child(5) { animation-delay: 1.2s; }
+        .subtitle-word:nth-child(6) { animation-delay: 1.3s; }
+        .subtitle-word:nth-child(7) { animation-delay: 1.4s; }
+        .subtitle-word:nth-child(8) { animation-delay: 1.5s; }
+
+        /* Анимации для подписей */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes iconFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes ringRotate {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @keyframes sparkleTwinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes textGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3),
+                             0 0 20px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.5),
+                             0 0 30px rgba(255, 255, 255, 0.3),
+                             0 0 45px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes underlineExpand {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes decorationPulse {
+            0%, 100% {
+                width: 80px;
+                opacity: 0.5;
+            }
+            50% {
+                width: 100px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes centerBounce {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes wordReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== ФОНОВЫЕ ИЗОБРАЖЕНИЯ (БЕЗ ПЕРЕХОДА) ===== */
+        .classical-bg {
+            background-image: url('/media/obj/gig1.jpg') !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.9;
+        }
+
+        .modern-bg {
+            background-image: url('/media/obj/gig.jpg') !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.9;
+        }
+
+        .section-bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .classical-gradient {
+            background: linear-gradient(135deg, 
+                rgba(139, 69, 19, 0.4) 0%,
+                rgba(210, 105, 30, 0.3) 25%,
+                rgba(255, 215, 0, 0.2) 50%,
+                rgba(139, 69, 19, 0.4) 100%);
+        }
+
+        .modern-gradient {
+            background: linear-gradient(135deg,
+                rgba(156, 39, 176, 0.4) 0%,
+                rgba(103, 58, 183, 0.3) 25%,
+                rgba(0, 188, 212, 0.2) 50%,
+                rgba(156, 39, 176, 0.4) 100%);
+        }
+
+        /* ===== УЛУЧШЕННОЕ ОТОБРАЖЕНИЕ КАРТИН ===== */
+        .painting-image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 80%; /* Увеличено до 80% */
+            min-height: 400px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .painting-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            object-fit: contain;
+        }
+
+        /* Адаптация под горизонтальные картины */
+        .painting-image.horizontal {
+            width: 100%;
+            height: auto;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .painting-image.vertical {
+            height: 100%;
+            width: auto;
+            max-width: 90%;
+            object-fit: contain;
+        }
+
+        .painting-image.square {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+        }
+
+        .carousel-item.active .painting-image {
+            transform: scale(1.05);
+        }
+
+        .painting-card:hover .painting-image {
+            transform: scale(1.08);
+        }
+
+        /* ===== ОСТАЛЬНЫЕ СТИЛИ ===== */
+
+        .art-section {
+            position: relative;
+            padding: 7rem 0;
+            margin: 0;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .art-section .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 850px; /* Увеличена высота для больших изображений */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+            margin: 2rem 0;
+        }
+
+        .carousel-inner {
+            display: flex;
+            position: absolute;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-item {
+            width: 320px;
+            height: 650px; /* Увеличена высота для большего изображения */
+            margin: 0 20px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            transform: scale(0.7) translateZ(-200px);
+            opacity: 0.5;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                        opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                        filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-item.active {
+            width: 420px;
+            height: 750px; /* Увеличена высота активного слайда */
+            transform: scale(1) translateZ(0);
+            opacity: 1;
+            z-index: 10;
+            filter: blur(0);
+        }
+
+        .carousel-item:nth-child(2),
+        .carousel-item:nth-child(4) {
+            transform: scale(0.85) translateZ(-100px);
+            opacity: 0.7;
+            filter: blur(1px);
+        }
+
+        .painting-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 25px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.5);
+        }
+
+        .painting-card.classical {
+            border: 6px solid #8B4513;
+            box-shadow: 0 35px 70px rgba(139, 69, 19, 0.4),
+                        inset 0 0 0 1px rgba(255, 215, 0, 0.3);
+        }
+
+        .painting-card.modern {
+            border: 6px solid #9C27B0;
+            box-shadow: 0 35px 70px rgba(156, 39, 176, 0.4),
+                        inset 0 0 0 1px rgba(0, 255, 255, 0.3);
+        }
+
+        .painting-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .painting-info {
+            padding: 1.5rem;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), white);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            height: 20%; /* Оставшиеся 20% для информации */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .painting-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .carousel-item.active .painting-title {
+            font-size: 1.6rem;
+        }
+
+        .painting-artist {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            margin-bottom: 0.3rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .carousel-item.active .painting-artist {
+            font-size: 1.3rem;
+        }
+
+        .painting-details {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .carousel-item.active .painting-details {
+            font-size: 1rem;
+        }
+
+        .painting-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            align-items: center;
+            padding: 0 1rem 1rem;
+        }
+
+        .like-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 3;
+            position: relative;
+        }
+
+        .like-btn:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+
+        .like-btn.liked {
+            background: #ff6b6b;
+            animation: heartBeat 0.6s ease;
+        }
+
+        .modern-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, #9C27B0, #673AB7);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            z-index: 2;
+            border: 2px solid white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .indicators {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dot-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .dot:hover .dot-inner {
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .dot.active .dot-inner {
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+        }
+
+        .dot.active::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(52, 152, 219, 0.6);
+            animation: dotPulse 2s infinite;
+        }
+
+        .section-footer {
+            text-align: center;
+            margin-top: 5rem;
+            padding-top: 3rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .no-paintings-message {
+            text-align: center;
+            padding: 6rem;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 25px;
+            margin: 3rem auto;
+            max-width: 700px;
+            backdrop-filter: blur(20px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .no-paintings-message .message-icon {
+            font-size: 6rem;
+            margin-bottom: 2.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .no-paintings-message h3 {
+            color: white;
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .painting-glow {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle at center, 
+                rgba(255, 255, 255, 0.3) 0%,
+                rgba(255, 255, 255, 0.1) 40%,
+                transparent 70%);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .carousel-item.active .painting-glow {
+            opacity: 1;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 4rem;
+        }
+
+        /* Кнопки навигации карусели */
+        .paint-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            z-index: 20;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        .paint-nav-btn .btn-bg {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .paint-nav-btn:hover {
+            transform: translateY(-50%) scale(1.15);
+        }
+
+        .paint-nav-btn:hover .btn-bg {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        }
+
+        .paint-nav-btn.prev-button {
+            left: 20px;
+        }
+
+        .paint-nav-btn.next-button {
+            right: 20px;
+        }
+
+        /* Детальные кнопки */
+        .detail-btn {
+            padding: 0.8rem 1.5rem;
+            min-width: auto;
+            font-size: 1rem;
+        }
+
+        .detail-btn .btn-bg {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .view-all-btn {
+            padding: 1.5rem 3rem;
+            font-size: 1.3rem;
+        }
+
+        .view-all-btn .btn-bg {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Индикатор скролла */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            animation: fadeIn 1s ease-out 1.2s both;
+        }
+
+        .mouse {
+            width: 30px;
+            height: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .wheel {
+            width: 4px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 2px;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: scrollWheel 2s infinite;
+        }
+
+        @keyframes scrollWheel {
+            0% {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) translateY(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Анимации */
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+
+        @keyframes dotPulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes titleSlideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes titleSlideRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { 
+                opacity: 0.7;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        /* ===== ХУДОЖЕСТВЕННЫЙ БЛОК "НАШИ ХУДОЖНИКИ" ===== */
+        .artists-section {
+            background: linear-gradient(135deg, 
+                rgba(20, 20, 20, 0.95) 0%,
+                rgba(30, 30, 30, 0.9) 100%);
+            padding: 8rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artists-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .header-decoration {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .brush-stroke {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            position: relative;
+        }
+
+        .brush-stroke.reverse {
+            background: linear-gradient(90deg, transparent, #9C27B0, transparent);
+        }
+
+        .brush-stroke::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: inherit;
+            filter: blur(3px);
+            opacity: 0.5;
+        }
+
+        .artists-section .section-title {
+            color: white;
+            font-size: 3.5rem;
+            margin: 0;
+        }
+
+        .artists-section .section-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 1rem auto 0;
+        }
+
+        /* Карточки художников */
+        .artists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            padding: 0 2rem;
+        }
+
+        .artist-card {
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .artist-card-inner {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+            z-index: 2;
+        }
+
+        .artist-card:hover .artist-card-inner {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        /* Аватар художника */
+        .artist-avatar-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .artist-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+        }
+
+        .artist-avatar.default {
+            background: linear-gradient(135deg, #fc3565, #ff6b95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .avatar-frame {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            z-index: 1;
+            animation: frameRotate 10s infinite linear;
+        }
+
+        .avatar-paint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle, rgba(252, 53, 101, 0.2) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 0;
+            filter: blur(10px);
+        }
+
+        @keyframes frameRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Информация о художнике */
+        .artist-info {
+            text-align: center;
+        }
+
+        .artist-info h3 {
+            color: white;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .artist-country {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+        }
+
+        .artist-bio {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+        }
+
+        .artist-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Художественные элементы карточек */
+        .card-splatter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(5px);
+            z-index: 1;
+        }
+
+        .card-brush {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #FFD700, transparent);
+            transform: rotate(-45deg);
+            opacity: 0.5;
+        }
+
+        .no-artists-message {
+            text-align: center;
+            padding: 4rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .no-artists-message .message-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .no-artists-message p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.5rem;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1600px) {
+            .carousel-container {
+                height: 750px;
+            }
+            
+            .carousel-item {
+                width: 300px;
+                height: 600px;
+            }
+            
+            .carousel-item.active {
+                width: 380px;
+                height: 700px;
+            }
+            
+            .section-title {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .section-title {
+                font-size: 3.5rem;
+            }
+            
+            .carousel-container {
+                height: 700px;
+            }
+            
+            .carousel-item {
+                width: 280px;
+                height: 550px;
+            }
+            
+            .carousel-item.active {
+                width: 350px;
+                height: 650px;
+            }
+            
+            .hero-title {
+                font-size: 4rem;
+            }
+            
+            .art-logo {
+                font-size: 6rem;
+            }
+            
+            .art-logo-wrapper {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .section-title {
+                font-size: 3rem;
+            }
+            
+            .carousel-container {
+                height: 650px;
+            }
+            
+            .carousel-item {
+                width: 240px;
+                height: 500px;
+                margin: 0 15px;
+            }
+            
+            .carousel-item.active {
+                width: 320px;
+                height: 600px;
+            }
+            
+            .hero-title {
+                font-size: 3.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.3rem;
+            }
+            
+            .hero-nav-buttons {
+                bottom: 120px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .art-section {
+                padding: 5rem 0;
+                min-height: auto;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1.3rem;
+            }
+            
+            .carousel-container {
+                height: 600px;
+            }
+            
+            .carousel-item {
+                width: 220px;
+                height: 450px;
+                margin: 0 10px;
+            }
+            
+            .carousel-item.active {
+                width: 280px;
+                height: 550px;
+            }
+            
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .art-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+            }
+            
+            .paint-btn {
+                min-width: 280px;
+            }
+            
+            .hero-nav-buttons {
+                bottom: 140px;
+            }
+            
+            /* На планшетах показываем только 3 слайда */
+            .carousel-item:nth-child(1),
+            .carousel-item:nth-child(5) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .section-icon {
+                font-size: 4rem;
+            }
+            
+            .carousel-container {
+                height: 550px;
+            }
+            
+            .carousel-item {
+                width: 200px;
+                height: 400px;
+                margin: 0 8px;
+            }
+            
+            .carousel-item.active {
+                width: 240px;
+                height: 500px;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .art-logo {
+                font-size: 5rem;
+            }
+            
+            .art-logo-wrapper {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .paint-nav-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .scroll-indicator {
+                bottom: 60px;
+            }
+            
+            .hero-nav-buttons {
+                bottom: 160px;
+            }
+            
+            .section-subtitle {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            /* На мобильных показываем только центральный слайд */
+            .carousel-item:nth-child(2),
+            .carousel-item:nth-child(4) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .carousel-container {
+                height: 500px;
+            }
+            
+            .carousel-item {
+                width: 180px;
+                height: 350px;
+            }
+            
+            .carousel-item.active {
+                width: 220px;
+                height: 450px;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .paint-btn {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+                min-width: 250px;
+            }
+            
+            .artists-grid {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+            
+            .scroll-indicator {
+                bottom: 80px;
+                font-size: 0.8rem;
+            }
+            
+            .hero-nav-buttons {
+                bottom: 180px;
+            }
+        }
+    </style>
+
+    <script>
+        // Объект для хранения состояния каруселей
+        const carousels = {
+            'classical': {
+                currentIndex: 2,
+                items: null,
+                track: null,
+                dots: null,
+                autoScrollInterval: null,
+                itemWidth: 340
+            },
+            'modern': {
+                currentIndex: 2,
+                items: null,
+                track: null,
+                dots: null,
+                autoScrollInterval: null,
+                itemWidth: 340
+            }
+        };
+
+        // Проверка ориентации изображения и применение соответствующих классов
+        function checkImageOrientation(img) {
+            if (img.naturalWidth && img.naturalHeight) {
+                const aspectRatio = img.naturalWidth / img.naturalHeight;
+                img.classList.remove('horizontal', 'vertical', 'square');
+                
+                if (aspectRatio > 1.2) {
+                    // Горизонтальное изображение
+                    img.classList.add('horizontal');
+                } else if (aspectRatio < 0.8) {
+                    // Вертикальное изображение
+                    img.classList.add('vertical');
+                } else {
+                    // Квадратное или близкое к квадратному
+                    img.classList.add('square');
+                }
+            }
+        }
+
+        // Предзагрузка и проверка ориентации всех изображений
+        function initImages() {
+            document.querySelectorAll('.painting-image').forEach(img => {
+                if (img.complete) {
+                    checkImageOrientation(img);
+                } else {
+                    img.addEventListener('load', function() {
+                        checkImageOrientation(this);
+                    });
+                }
+            });
+        }
+
+        // Инициализация карусели
+        function initCarousel(carouselId) {
+            const carousel = carousels[carouselId];
+            const track = document.getElementById(`${carouselId}-track`);
+            const items = track.querySelectorAll('.carousel-item');
+            const dots = document.getElementById(`${carouselId}-dots`).querySelectorAll('.dot');
+            
+            carousel.track = track;
+            carousel.items = items;
+            carousel.dots = dots;
+            
+            // Обновляем размер элемента
+            if (items[0]) {
+                const itemStyle = window.getComputedStyle(items[0]);
+                const itemWidth = items[0].offsetWidth;
+                const itemMargin = parseInt(itemStyle.marginLeft) + parseInt(itemStyle.marginRight);
+                carousel.itemWidth = itemWidth + itemMargin;
+            }
+            
+            updateCarousel(carouselId);
+        }
+
+        // Обновление карусели
+        function updateCarousel(carouselId) {
+            const carousel = carousels[carouselId];
+            if (!carousel.track || !carousel.items) return;
+            
+            // Рассчитываем смещение для центрирования текущего элемента
+            const containerWidth = document.querySelector(`#${carouselId}-carousel`).offsetWidth;
+            const offset = (containerWidth / 2) - (carousel.itemWidth / 2);
+            
+            // Смещение ленты
+            const translateValue = offset - (carousel.currentIndex * carousel.itemWidth);
+            carousel.track.style.transform = `translateX(${translateValue}px)`;
+            
+            // Обновление классов активности и стилей
+            carousel.items.forEach((item, index) => {
+                item.classList.remove('active');
+                carousel.dots[index].classList.remove('active');
+                
+                const position = index - carousel.currentIndex;
+                
+                if (position === 0) {
+                    // Центральный элемент
+                    item.classList.add('active');
+                    carousel.dots[index].classList.add('active');
+                    item.style.transform = 'scale(1) translateZ(0)';
+                    item.style.opacity = '1';
+                    item.style.filter = 'blur(0)';
+                } else if (Math.abs(position) === 1) {
+                    // Ближайшие элементы (слева/справа)
+                    item.style.transform = 'scale(0.85) translateZ(-100px)';
+                    item.style.opacity = '0.7';
+                    item.style.filter = 'blur(1px)';
+                } else {
+                    // Крайние элементы
+                    item.style.transform = 'scale(0.7) translateZ(-200px)';
+                    item.style.opacity = '0.5';
+                    item.style.filter = 'blur(2px)';
+                }
+            });
+            
+            // Обновление состояния кнопок навигации
+            updateNavButtons(carouselId);
+        }
+
+        // Обновление состояния кнопок навигации
+        function updateNavButtons(carouselId) {
+            const carousel = carousels[carouselId];
+            const prevButton = document.querySelector(`#${carouselId}-carousel .prev-button`);
+            const nextButton = document.querySelector(`#${carouselId}-carousel .next-button`);
+            
+            if (prevButton) {
+                const isDisabled = carousel.currentIndex === 0;
+                prevButton.disabled = isDisabled;
+                prevButton.classList.toggle('disabled', isDisabled);
+                prevButton.style.opacity = isDisabled ? '0.3' : '1';
+            }
+            
+            if (nextButton) {
+                const isDisabled = carousel.currentIndex === carousel.items.length - 1;
+                nextButton.disabled = isDisabled;
+                nextButton.classList.toggle('disabled', isDisabled);
+                nextButton.style.opacity = isDisabled ? '0.3' : '1';
+            }
+        }
+
+        // Следующий слайд
+        function nextSlide(carouselId) {
+            const carousel = carousels[carouselId];
+            if (carousel.currentIndex < carousel.items.length - 1) {
+                carousel.currentIndex++;
+                updateCarousel(carouselId);
+                animateButton(carouselId, 'next');
+            }
+        }
+
+        // Предыдущий слайд
+        function prevSlide(carouselId) {
+            const carousel = carousels[carouselId];
+            if (carousel.currentIndex > 0) {
+                carousel.currentIndex--;
+                updateCarousel(carouselId);
+                animateButton(carouselId, 'prev');
+            }
+        }
+
+        // Перейти к конкретному слайду
+        function goToSlide(carouselId, index) {
+            const carousel = carousels[carouselId];
+            if (index >= 0 && index < carousel.items.length) {
+                carousel.currentIndex = index;
+                updateCarousel(carouselId);
+            }
+        }
+
+        // Анимация кнопки
+        function animateButton(carouselId, direction) {
+            const btn = document.querySelector(`#${carouselId}-carousel .${direction}-button`);
+            if (btn && !btn.disabled) {
+                btn.style.transform = 'translateY(-50%) scale(1.3)';
+                setTimeout(() => {
+                    if (!btn.disabled) {
+                        btn.style.transform = 'translateY(-50%) scale(1.15)';
+                    }
+                }, 200);
+            }
+        }
+
+        // Автопрокрутка
+        function startAutoSlide(carouselId) {
+            const carousel = carousels[carouselId];
+            
+            if (carousel.autoScrollInterval) {
+                clearInterval(carousel.autoScrollInterval);
+            }
+            
+            carousel.autoScrollInterval = setInterval(() => {
+                if (carousel.currentIndex < carousel.items.length - 1) {
+                    nextSlide(carouselId);
+                } else {
+                    // Если достигли конца, начинаем сначала
+                    carousel.currentIndex = 0;
+                    updateCarousel(carouselId);
+                }
+            }, 5000);
+        }
+
+        // Остановить автопрокрутку
+        function stopAutoSlide(carouselId) {
+            const carousel = carousels[carouselId];
+            if (carousel.autoScrollInterval) {
+                clearInterval(carousel.autoScrollInterval);
+                carousel.autoScrollInterval = null;
+            }
+        }
+
+        // Анимация кнопок при наведении
+        function initButtonEffects() {
+            document.querySelectorAll('.paint-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const paintEffect = this.querySelector('.paint-effect');
+                    if (paintEffect) {
+                        paintEffect.style.left = x + 'px';
+                        paintEffect.style.top = y + 'px';
+                    }
+                });
+            });
+        }
+
+        // Анимация подписей при скролле
+        function initAnimatedHeaders() {
+            const headers = document.querySelectorAll('.animated-header');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Запускаем анимацию слов подзаголовка
+                        const words = entry.target.querySelectorAll('.subtitle-word');
+                        words.forEach((word, index) => {
+                            word.style.animationDelay = `${0.8 + (index * 0.1)}s`;
+                        });
+                    }
+                });
+            }, {
+                threshold: 0.3,
+                rootMargin: '0px 0px -100px 0px'
+            });
+            
+            headers.forEach(header => {
+                observer.observe(header);
+            });
+        }
+
+        // Плавный скролл к секциям
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const headerHeight = document.querySelector('.navbar')?.offsetHeight || 80;
+                        const targetPosition = targetElement.offsetTop - headerHeight;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Анимация для кнопок навигации
+                        this.classList.add('clicked');
+                        setTimeout(() => {
+                            this.classList.remove('clicked');
+                        }, 300);
+                    }
+                });
+            });
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация изображений
+            initImages();
+            
+            // Инициализация эффектов кнопок
+            initButtonEffects();
+            
+            // Инициализация анимированных подписей
+            initAnimatedHeaders();
+            
+            // Инициализация плавного скролла
+            initSmoothScroll();
+            
+            // Инициализировать карусели
+            ['classical', 'modern'].forEach(carouselId => {
+                initCarousel(carouselId);
+                
+                // Запустить автопрокрутку
+                startAutoSlide(carouselId);
+                
+                // Остановить автопрокрутку при наведении
+                const carousel = document.getElementById(`${carouselId}-carousel`);
+                if (carousel) {
+                    carousel.addEventListener('mouseenter', () => {
+                        stopAutoSlide(carouselId);
+                    });
+                    
+                    carousel.addEventListener('mouseleave', () => {
+                        startAutoSlide(carouselId);
+                    });
+                }
+            });
+            
+            // Обработка кнопок лайков
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const isLiked = this.classList.toggle('liked');
+                    
+                    if (isLiked) {
+                        this.innerHTML = '<i class="fas fa-heart"></i>';
+                        this.style.background = '#ff6b6b';
+                        
+                        // Анимация лайка
+                        this.style.animation = 'heartBeat 0.6s ease';
+                        setTimeout(() => {
+                            this.style.animation = '';
+                        }, 600);
+                    } else {
+                        this.innerHTML = '<i class="fas fa-heart"></i>';
+                        this.style.background = '#e74c3c';
+                    }
+                });
+            });
+            
+            // Обработка изменения размера окна
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    ['classical', 'modern'].forEach(carouselId => {
+                        const carousel = carousels[carouselId];
+                        if (carousel.items && carousel.items[0]) {
+                            const itemStyle = window.getComputedStyle(carousel.items[0]);
+                            const itemWidth = carousel.items[0].offsetWidth;
+                            const itemMargin = parseInt(itemStyle.marginLeft) + parseInt(itemStyle.marginRight);
+                            carousel.itemWidth = itemWidth + itemMargin;
+                        }
+                        updateCarousel(carouselId);
+                    });
+                    
+                    // Перепроверка ориентации изображений
+                    initImages();
+                }, 250);
+            });
+        });
+    </script>
+{% endblock %}

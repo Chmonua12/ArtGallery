@@ -1,0 +1,1097 @@
+{% extends 'base.html' %}
+
+{% block title %}Картины - ArtVerse | Цифровая галерея{% endblock %}
+
+{% block content %}
+<!-- Блок галереи -->
+<section class="gallery-section">
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="gallery-header">
+            <h1 class="gallery-title">Галерея картин</h1>
+            
+            <p class="gallery-subtitle">
+                Исследуйте коллекцию шедевров от классических мастеров до современных художников
+            </p>
+            
+            <!-- Фильтры и сортировка -->
+            <div class="gallery-filters">
+                <div class="filter-buttons">
+                    <a href="{% url 'painting_list' %}" class="filter-btn {% if not request.GET.type %}active{% endif %}">
+                        <i class="fas fa-th"></i>
+                        Все работы
+                    </a>
+                    <a href="?type=classical" class="filter-btn {% if request.GET.type == 'classical' %}active{% endif %}">
+                        <i class="fas fa-palette"></i>
+                        Классика
+                    </a>
+                    <a href="?type=modern" class="filter-btn {% if request.GET.type == 'modern' %}active{% endif %}">
+                        <i class="fas fa-brush"></i>
+                        Современное
+                    </a>
+                    <a href="?type=digital" class="filter-btn {% if request.GET.type == 'digital' %}active{% endif %}">
+                        <i class="fas fa-laptop"></i>
+                        Цифровое
+                    </a>
+                </div>
+                
+                <!-- Сортировка -->
+                <div class="sort-dropdown">
+                    <button class="sort-btn">
+                        <i class="fas fa-sort"></i>
+                        Сортировка
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="sort-options">
+                        <a href="?sort=newest{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="sort-option {% if sort_by == 'newest' or not sort_by %}active{% endif %}">
+                            <i class="fas fa-calendar-alt"></i>
+                            По дате (новые)
+                        </a>
+                        <a href="?sort=oldest{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="sort-option {% if sort_by == 'oldest' %}active{% endif %}">
+                            <i class="fas fa-calendar"></i>
+                            По дате (старые)
+                        </a>
+                        <a href="?sort=likes{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                           class="sort-option {% if sort_by == 'likes' %}active{% endif %}">
+                            <i class="fas fa-heart"></i>
+                            По лайкам
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Сетка картин -->
+        <div class="paintings-grid">
+            {% for painting in paintings %}
+            <div class="painting-card">
+                <div class="painting-image-wrapper">
+                    {% if painting.image %}
+                    <a href="{% url 'painting_detail' painting.pk %}" class="image-link">
+                        <img src="{{ painting.image.url }}" 
+                             alt="{{ painting.title }}" 
+                             class="painting-image"
+                             loading="lazy">
+                    </a>
+                    {% else %}
+                    <div class="no-image-placeholder">
+                        <i class="fas fa-image"></i>
+                        <span>Изображение отсутствует</span>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Кнопка лайка -->
+                    {% if user.is_authenticated %}
+                    <button class="like-btn {% if painting.is_liked %}liked{% endif %}" 
+                            data-painting-id="{{ painting.pk }}"
+                            onclick="toggleLike({{ painting.pk }})">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    {% endif %}
+                    
+                    <!-- Кнопка в избранное -->
+                    {% if user.is_authenticated %}
+                    <button class="favorite-btn {% if painting.is_favorited %}favorited{% endif %}" 
+                            data-painting-id="{{ painting.pk }}"
+                            onclick="toggleFavorite({{ painting.pk }})">
+                        <i class="fas fa-bookmark"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <div class="painting-info">
+                    <h3 class="painting-title">
+                        <a href="{% url 'painting_detail' painting.pk %}" class="title-link">
+                            {{ painting.title }}
+                        </a>
+                    </h3>
+                    
+                    <div class="painting-meta">
+                        <a href="{% url 'artist_detail' painting.artist.pk %}" class="artist-link">
+                            <i class="fas fa-user-circle"></i>
+                            {{ painting.artist }}
+                        </a>
+                        
+                        {% if painting.year %}
+                        <span class="year">{{ painting.year }} год</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="painting-stats">
+                        <span class="stat likes-stat">
+                            <i class="fas fa-heart"></i>
+                            <span class="count" id="likes-count-{{ painting.pk }}">{{ painting.likes_count }}</span>
+                        </span>
+                        
+                        <span class="stat views-stat">
+                            <i class="fas fa-eye"></i>
+                            <span>{{ painting.views_count|default:"0" }}</span>
+                        </span>
+                    </div>
+                    
+                    {% if painting.genre %}
+                    <div class="painting-genre">
+                        <a href="?genre={{ painting.genre.id }}" class="genre-tag">
+                            <i class="fas {{ painting.genre.icon|default:'fa-palette' }}"></i>
+                            {{ painting.genre.name }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'painting_detail' painting.pk %}" class="view-details-btn">
+                        <i class="fas fa-expand"></i>
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-paintings-message">
+                <div class="message-content">
+                    <i class="fas fa-palette"></i>
+                    <h3>Картины еще не добавлены</h3>
+                    <p>Начните добавлять картины в вашу коллекцию</p>
+                    {% if user.is_staff %}
+                    <a href="{% url 'add_painting' %}" class="add-btn">
+                        <i class="fas fa-plus"></i>
+                        Добавить картину
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Пагинация -->
+        {% if paintings.has_other_pages %}
+        <div class="pagination">
+            {% if paintings.has_previous %}
+            <a href="?page={{ paintings.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+               class="pagination-btn prev">
+                <i class="fas fa-chevron-left"></i>
+                Назад
+            </a>
+            {% endif %}
+            
+            <div class="page-numbers">
+                {% for num in paintings.paginator.page_range %}
+                    {% if paintings.number == num %}
+                    <span class="page-number active">{{ num }}</span>
+                    {% elif num > paintings.number|add:'-3' and num < paintings.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+                       class="page-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if paintings.has_next %}
+            <a href="?page={{ paintings.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+               class="pagination-btn next">
+                Вперед
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+/* ===== ГАЛЕРЕЯ КАРТИН ===== */
+.gallery-section {
+    padding: 3rem 0 5rem;
+    min-height: 100vh;
+    background: #f0f0f0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* Заголовок */
+.gallery-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.gallery-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #3a3a3a;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.gallery-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #6b6b6b, #4a4a4a);
+    border-radius: 2px;
+}
+
+.gallery-subtitle {
+    font-size: 1.2rem;
+    color: #6b6b6b;
+    max-width: 600px;
+    margin: 1rem auto 2.5rem;
+    line-height: 1.6;
+}
+
+/* Фильтры */
+.gallery-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: #fafafa;
+    border: 1px solid #d0d0d0;
+    border-radius: 12px;
+    color: #6b6b6b;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #f0f0f0;
+    border-color: #6b6b6b;
+    color: #4a4a4a;
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #6b6b6b, #4a4a4a);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(107, 107, 107, 0.2);
+}
+
+.filter-btn i {
+    font-size: 1rem;
+}
+
+/* Сортировка */
+.sort-dropdown {
+    position: relative;
+}
+
+.sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: #fafafa;
+    border: 1px solid #d0d0d0;
+    border-radius: 12px;
+    color: #6b6b6b;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sort-btn:hover {
+    border-color: #6b6b6b;
+    color: #4a4a4a;
+}
+
+.sort-options {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    background: #fafafa;
+    border: 1px solid #d0d0d0;
+    border-radius: 12px;
+    padding: 0.5rem;
+    min-width: 180px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 100;
+}
+
+.sort-dropdown:hover .sort-options {
+    display: block;
+}
+
+.sort-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    color: #6b6b6b;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sort-option:hover {
+    background: #f0f0f0;
+    color: #4a4a4a;
+}
+
+.sort-option.active {
+    background: #f0f0f0;
+    color: #4a4a4a;
+    font-weight: 600;
+}
+
+/* Сетка картин */
+.paintings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.painting-card {
+    background: #fafafa;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid #d0d0d0;
+    transition: all 0.3s ease;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.painting-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Изображение */
+.painting-image-wrapper {
+    position: relative;
+    height: 350px;
+    overflow: hidden;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+.painting-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+    display: block;
+}
+
+.painting-card:hover .painting-image {
+    transform: scale(1.02);
+}
+
+.image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+}
+
+.no-image-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.no-image-placeholder span {
+    font-size: 0.9rem;
+}
+
+/* Кнопки действий на изображении */
+.like-btn, .favorite-btn {
+    position: absolute;
+    top: 12px;
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.like-btn {
+    right: 12px;
+    color: #e74c3c;
+}
+
+.favorite-btn {
+    right: 56px;
+    color: #636e72;
+}
+
+.like-btn:hover, .favorite-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.like-btn.liked {
+    background: #ff6b6b;
+    color: white;
+}
+
+.favorite-btn.favorited {
+    background: #fdcb6e;
+    color: white;
+}
+
+/* Информация о картине */
+.painting-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.painting-title {
+    margin: 0 0 0.8rem 0;
+}
+
+.title-link {
+    color: #3a3a3a;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.title-link:hover {
+    color: #4a4a4a;
+}
+
+.painting-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.artist-link {
+    color: #636e72;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.3s ease;
+}
+
+.artist-link:hover {
+    color: #667eea;
+}
+
+.year {
+    color: #adb5bd;
+    background: #f8f9fa;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+/* Статистика */
+.painting-stats {
+    display: flex;
+    gap: 1rem;
+    margin: 0.8rem 0;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #636e72;
+    font-size: 0.9rem;
+}
+
+.stat i {
+    font-size: 0.9rem;
+}
+
+.likes-stat {
+    color: #e74c3c;
+}
+
+.views-stat {
+    color: #0984e3;
+}
+
+/* Жанр */
+.painting-genre {
+    margin: 0.8rem 0 1.2rem;
+}
+
+.genre-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    color: #636e72;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.genre-tag:hover {
+    background: #e9ecef;
+    color: #2d3436;
+}
+
+.genre-tag i {
+    font-size: 0.8rem;
+}
+
+/* Кнопка подробнее */
+.view-details-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #6b6b6b, #4a4a4a);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.view-details-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 107, 107, 0.3);
+    background: linear-gradient(135deg, #4a4a4a, #6b6b6b);
+}
+
+.view-details-btn i {
+    font-size: 0.9rem;
+}
+
+/* Сообщение об отсутствии картин */
+.no-paintings-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.message-content {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.no-paintings-message i {
+    font-size: 4rem;
+    color: #adb5bd;
+    margin-bottom: 1.5rem;
+}
+
+.no-paintings-message h3 {
+    color: #2d3436;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.no-paintings-message p {
+    color: #636e72;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    color: #636e72;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.page-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #636e72;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.page-number:hover {
+    background: #f8f9fa;
+    color: #667eea;
+}
+
+.page-number.active {
+    background: linear-gradient(135deg, #6b6b6b, #4a4a4a);
+    color: white;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.painting-card {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.painting-card:nth-child(2) { animation-delay: 0.1s; }
+.painting-card:nth-child(3) { animation-delay: 0.2s; }
+.painting-card:nth-child(4) { animation-delay: 0.3s; }
+.painting-card:nth-child(5) { animation-delay: 0.4s; }
+.painting-card:nth-child(6) { animation-delay: 0.5s; }
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.3); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.3); }
+    70% { transform: scale(1); }
+}
+
+.like-btn.liked {
+    animation: heartBeat 0.6s ease;
+}
+
+@keyframes bookmarkBounce {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+    60% { transform: translateY(0); }
+    100% { transform: translateY(0); }
+}
+
+.favorite-btn.favorited {
+    animation: bookmarkBounce 0.6s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .paintings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .gallery-section {
+        padding: 2rem 0 4rem;
+    }
+    
+    .gallery-title {
+        font-size: 2.2rem;
+    }
+    
+    .gallery-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .paintings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-title {
+        font-size: 1.8rem;
+    }
+    
+    .gallery-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-buttons {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .filter-btn {
+        white-space: nowrap;
+    }
+    
+    .paintings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .paintings-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto 3rem;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .painting-image-wrapper {
+        height: 180px;
+    }
+}
+</style>
+
+<script>
+// Функция для получения CSRF токена
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Обработка лайков
+async function toggleLike(paintingId) {
+    const likeBtn = document.querySelector(`.like-btn[data-painting-id="${paintingId}"]`);
+    const likesCount = document.getElementById(`likes-count-${paintingId}`);
+    
+    try {
+        const response = await fetch(`/api/paintings/${paintingId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const isLiked = data.liked;
+            
+            // Обновляем состояние кнопки
+            if (isLiked) {
+                likeBtn.classList.add('liked');
+                likeBtn.style.animation = 'heartBeat 0.6s ease';
+                setTimeout(() => {
+                    likeBtn.style.animation = '';
+                }, 600);
+            } else {
+                likeBtn.classList.remove('liked');
+            }
+            
+            // Обновляем счетчик лайков
+            if (likesCount) {
+                likesCount.textContent = data.likes_count;
+            }
+            
+            // Показываем уведомление
+            showNotification(isLiked ? 'Добавлено в лайки' : 'Убрано из лайков', 'success');
+            
+        } else {
+            const error = await response.json();
+            if (error.error === 'login_required') {
+                window.location.href = `/login/?next=${window.location.pathname}`;
+            } else {
+                showNotification(error.error || 'Произошла ошибка', 'error');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Произошла ошибка. Попробуйте еще раз', 'error');
+    }
+}
+
+// Обработка избранного
+async function toggleFavorite(paintingId) {
+    const favoriteBtn = document.querySelector(`.favorite-btn[data-painting-id="${paintingId}"]`);
+    
+    if (!favoriteBtn) {
+        console.error('Кнопка избранного не найдена');
+        return;
+    }
+    
+    try {
+        const csrftoken = getCookie('csrftoken');
+        if (!csrftoken) {
+            showNotification('Ошибка безопасности. Перезагрузите страницу', 'error');
+            return;
+        }
+        
+        const response = await fetch(`/painting/${paintingId}/favorite/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        });
+        
+        if (!response.ok) {
+            // Если ответ не OK, пытаемся получить JSON с ошибкой
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (e) {
+                errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+            }
+            
+            if (response.status === 403 || response.status === 401) {
+                window.location.href = `/login/?next=${window.location.pathname}`;
+            } else {
+                showNotification(errorData.error || 'Произошла ошибка', 'error');
+                console.error('Ошибка избранного:', errorData);
+            }
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('Ответ сервера:', data);
+        
+        if (data.success) {
+            const isFavorited = data.favorited;
+            
+            // Обновляем состояние кнопки
+            if (isFavorited) {
+                favoriteBtn.classList.add('favorited');
+                favoriteBtn.style.animation = 'bookmarkBounce 0.6s ease';
+                setTimeout(() => {
+                    favoriteBtn.style.animation = '';
+                }, 600);
+            } else {
+                favoriteBtn.classList.remove('favorited');
+            }
+            
+            // Показываем уведомление с ссылкой на избранное
+            const message = isFavorited 
+                ? 'Добавлено в избранное! <a href="/favorites/" style="color: white; text-decoration: underline; margin-left: 5px;">Перейти</a>' 
+                : 'Убрано из избранного';
+            showNotification(message, 'success');
+            
+        } else {
+            // Обработка ошибок
+            showNotification(data.error || 'Произошла ошибка', 'error');
+            console.error('Ошибка избранного:', data);
+        }
+        
+    } catch (error) {
+        console.error('Ошибка при добавлении в избранное:', error);
+        showNotification('Произошла ошибка. Попробуйте еще раз', 'error');
+    }
+}
+
+// Функция для показа уведомлений
+function showNotification(message, type) {
+    // Создаем элемент уведомления
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    // Добавляем стили для уведомления
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#5a5a5a' : '#f44336'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+        font-weight: 500;
+        max-width: 400px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Удаляем уведомление через 4 секунды (больше для ссылок)
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 4000);
+}
+
+// Анимации для уведомлений
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Обработка выпадающего меню сортировки
+document.addEventListener('DOMContentLoaded', function() {
+    const sortBtn = document.querySelector('.sort-btn');
+    const sortOptions = document.querySelector('.sort-options');
+    
+    if (sortBtn && sortOptions) {
+        sortBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sortOptions.style.display = sortOptions.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', function(e) {
+            if (!sortBtn.contains(e.target) && !sortOptions.contains(e.target)) {
+                sortOptions.style.display = 'none';
+            }
+        });
+    }
+    
+    // Анимация появления карточек при скролле
+    const paintingCards = document.querySelectorAll('.painting-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+    
+    paintingCards.forEach(card => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

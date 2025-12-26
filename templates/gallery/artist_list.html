@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Художники - ArtVerse{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header" style="text-align: center; margin-bottom: 3rem;">
+        <h1 class="section-title">Художники</h1>
+        <p style="color: var(--text-light); max-width: 600px; margin: 0 auto;">
+            Талантливые мастера, создающие шедевры
+        </p>
+    </div>
+    
+    <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem;">
+        {% for artist in artists %}
+            <div class="card">
+                <div class="card-image-container" style="height: 200px;">
+                    {% if artist.get_avatar %}
+                        <img src="{{ artist.get_avatar.url }}" alt="{{ artist.first_name }} {{ artist.last_name }}" class="card-image" style="object-fit: cover;">
+                    {% else %}
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light);">
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #6b6b6b 0%, #4a4a4a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-size: 2.5rem; font-weight: bold;">
+                                    {{ artist.first_name|first|upper }}{{ artist.last_name|first|upper }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Кнопка подписки -->
+                    {% if user.is_authenticated %}
+                        <button class="follow-btn" 
+                                data-artist-id="{{ artist.id }}"
+                                style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); transition: all 0.3s ease;"
+                                {% if artist.is_following %}class="followed"{% endif %}>
+                            {% if artist.is_following %}
+                                <i class="fas fa-user-check" style="color: var(--accent); font-size: 1.2rem;"></i>
+                            {% else %}
+                                <i class="fas fa-user-plus" style="color: var(--text-light); font-size: 1.2rem;"></i>
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                </div>
+                
+                <div class="card-content">
+                    <h3 class="card-title">
+                        <a href="{% url 'artist_detail' artist.pk %}" style="color: inherit; text-decoration: none;">
+                            {{ artist.first_name }} {{ artist.last_name }}
+                        </a>
+                    </h3>
+                    <p class="card-subtitle">
+                        <i class="fas fa-map-marker-alt"></i> {{ artist.country }}
+                    </p>
+                    
+                    <p class="card-description">{{ artist.biography|truncatewords:25 }}</p>
+                    
+                    <!-- Статистика -->
+                    <div style="display: flex; justify-content: space-between; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 10px;">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--primary);">{{ artist.paintings.count }}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">работ</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; color: var(--primary);"> {{ artist.followers_count }} </div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);">подписчиков</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Соцсети -->
+                    {% if artist.has_any_social_network %}
+                    <div class="social-links" style="display: flex; justify-content: center; gap: 0.8rem; margin: 1rem 0;">
+                        {% if artist.instagram %}
+                            <a href="{{ artist.instagram }}" class="social-link instagram" title="Instagram" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f0f0f0; border-radius: 50%; color: #6b6b6b; text-decoration: none; transition: all 0.3s ease; border: 1px solid #d0d0d0;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        {% endif %}
+                        {% if artist.artstation %}
+                            <a href="{{ artist.artstation }}" class="social-link artstation" title="ArtStation" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f0f0f0; border-radius: 50%; color: #6b6b6b; text-decoration: none; transition: all 0.3s ease; border: 1px solid #d0d0d0;">
+                                <i class="fab fa-artstation"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'artist_detail' artist.pk %}" class="btn btn-outline" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-user-circle"></i>
+                        Профиль художника
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+                <i class="fas fa-users" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--text-light); margin-bottom: 1rem;">Художники еще не добавлены</h3>
+                {% if user.is_superuser %}
+                    <a href="/admin/gallery/artist/add/" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Добавить художника
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка подписок на художников
+        document.querySelectorAll('.follow-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const artistId = this.dataset.artistId;
+                
+                fetch(`/artist/${artistId}/follow/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.followed) {
+                        this.classList.add('followed');
+                        this.innerHTML = '<i class="fas fa-user-check" style="color: var(--accent); font-size: 1.2rem;"></i>';
+                        this.style.background = 'rgba(255, 107, 107, 0.1)';
+                    } else {
+                        this.classList.remove('followed');
+                        this.innerHTML = '<i class="fas fa-user-plus" style="color: var(--text-light); font-size: 1.2rem;"></i>';
+                        this.style.background = 'rgba(255,255,255,0.9)';
+                    }
+                    
+                    // Обновляем счетчик подписчиков
+                    const card = this.closest('.card');
+                    if (card) {
+                        const counter = card.querySelector('.followers-count');
+                        if (counter) {
+                            counter.textContent = data.followers_count;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+                });
+            });
+        });
+    });
+</script>
+
+<style>
+    .social-link {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .social-link:hover {
+        transform: translateY(-3px);
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .social-link.instagram:hover { 
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+        border-color: transparent !important;
+    }
+    .social-link.artstation:hover { 
+        background: #13AFF0 !important;
+        border-color: transparent !important;
+    }
+</style>
+{% endblock %}

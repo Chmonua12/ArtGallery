@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ artist }} - ArtVerse{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Шапка художника -->
+    <div class="artist-header" style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 3rem; margin-bottom: 3rem;">
+        <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+            {% if artist.get_avatar %}
+                <img src="{{ artist.get_avatar.url }}" alt="{{ artist }}" 
+                     style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            {% else %}
+                <div style="width: 150px; height: 150px; background: linear-gradient(135deg, #6b6b6b 0%, #4a4a4a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <span style="color: white; font-size: 3rem; font-weight: bold;">
+                        {{ artist.first_name|first|upper }}{{ artist.last_name|first|upper }}
+                    </span>
+                </div>
+            {% endif %}
+            
+            <div style="flex: 1;">
+                <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.5rem; margin-bottom: 0.5rem;">
+                    {{ artist.first_name }} {{ artist.last_name }}
+                </h1>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <span style="display: flex; align-items: center; gap: 0.3rem; color: var(--text-light);">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ artist.country }}
+                    </span>
+                    {% if artist.birth_date %}
+                        <span style="color: var(--text-light);">
+                            {{ artist.birth_date.year }}
+                            {% if artist.death_date %}
+                                - {{ artist.death_date.year }}
+                            {% else %}
+                                - настоящее время
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Статистика и кнопка подписки -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1.5rem; background: #f8f9fa; border-radius: 15px;">
+                    <div>
+                        <span class="artist-followers-count" id="artist-followers-count-{{ artist.pk }}" 
+                              style="font-size: 1.2rem; font-weight: 600; color: var(--primary);">
+                            {{ artist.followers_count }} подписчиков
+                        </span>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <button class="artist-follow-btn {% if is_following %}followed{% endif %}" 
+                            data-artist-id="{{ artist.pk }}"
+                            style="background: {% if is_following %}var(--accent){% else %}transparent{% endif %}; color: {% if is_following %}white{% else %}var(--accent){% endif %}; border: 2px solid var(--accent); padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s ease;">
+                        {% if is_following %}✓ Подписан{% else %}Подписаться{% endif %}
+                    </button>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" 
+                       style="background: var(--accent); color: white; padding: 0.8rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                        Подписаться
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Соцсети -->
+                {% if artist.has_any_social_network %}
+                <div style="display: flex; gap: 0.8rem; align-items: center; margin-top: 1rem;">
+                    <span style="color: var(--text-light); font-size: 0.9rem; margin-right: 0.5rem;">
+                        <i class="fas fa-share-alt"></i> Социальные сети:
+                    </span>
+                    {% if artist.instagram %}
+                        <a href="{{ artist.instagram }}" class="social-link instagram" title="Instagram" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: #f0f0f0; border-radius: 50%; color: #6b6b6b; text-decoration: none; transition: all 0.3s ease; border: 1px solid #d0d0d0;">
+                            <i class="fab fa-instagram" style="font-size: 1.2rem;"></i>
+                        </a>
+                    {% endif %}
+                    {% if artist.artstation %}
+                        <a href="{{ artist.artstation }}" class="social-link artstation" title="ArtStation" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: #f0f0f0; border-radius: 50%; color: #6b6b6b; text-decoration: none; transition: all 0.3s ease; border: 1px solid #d0d0d0;">
+                            <i class="fab fa-artstation" style="font-size: 1.2rem;"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Биография -->
+    <div class="bio-section" style="background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 2.5rem; margin-bottom: 3rem;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--primary);">
+            <i class="fas fa-book-open"></i> Биография
+        </h2>
+        <div style="color: var(--text); line-height: 1.8;">
+            {{ artist.biography|linebreaks }}
+        </div>
+    </div>
+    
+    <!-- Работы художника -->
+    <div class="works-section">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 2rem; margin-bottom: 2rem; color: var(--primary);">
+            <i class="fas fa-palette"></i> Работы художника
+        </h2>
+        
+        {% if paintings %}
+            <div class="grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2.5rem;">
+                {% for painting in paintings %}
+                    <div class="card">
+                        <div class="card-image-container">
+                            {% if painting.image %}
+                                <img src="{{ painting.image.url }}" alt="{{ painting.title }}" class="card-image">
+                            {% else %}
+                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-light);">
+                                    <i class="fas fa-image" style="font-size: 4rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">{{ painting.title }}</h3>
+                            <p class="card-description">{{ painting.description|truncatechars:100 }}</p>
+                            <div class="card-meta">
+                                <span class="year">{{ painting.year }}</span>
+                                <span class="genre-tag">{{ painting.technique }}</span>
+                            </div>
+                            <a href="{% url 'painting_detail' painting.pk %}" class="btn btn-outline" style="width: 100%; justify-content: center;">
+                                <i class="fas fa-expand"></i>
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem; background: white; border-radius: var(--radius-lg); box-shadow: var(--shadow);">
+                <i class="fas fa-palette" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                <p style="color: var(--text-light);">Работы этого художника еще не добавлены</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .social-link {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .social-link:hover {
+        transform: translateY(-3px);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .social-link.instagram:hover { 
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+        border-color: transparent;
+    }
+    .social-link.artstation:hover { 
+        background: #13AFF0 !important;
+        border-color: transparent;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработка подписки на художника
+        const followBtn = document.querySelector('.artist-follow-btn');
+        if (followBtn) {
+            followBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const artistId = this.dataset.artistId;
+                
+                fetch(`/artist/${artistId}/follow/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.followed) {
+                        this.classList.add('followed');
+                        this.innerHTML = '✓ Подписан';
+                        this.style.background = 'var(--accent)';
+                        this.style.color = 'white';
+                    } else {
+                        this.classList.remove('followed');
+                        this.innerHTML = 'Подписаться';
+                        this.style.background = 'transparent';
+                        this.style.color = 'var(--accent)';
+                    }
+                    
+                    // Обновляем счетчик подписчиков
+                    const counter = document.getElementById(`artist-followers-count-${artistId}`);
+                    if (counter) {
+                        counter.textContent = `${data.followers_count} подписчиков`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка. Пожалуйста, попробуйте еще раз.');
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

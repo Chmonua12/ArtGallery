@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - ArtVerse{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header" style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+            <div class="avatar-container" style="position: relative;">
+                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span style="color: white; font-size: 3rem; font-weight: bold;">
+                        {{ user.username|first|upper }}
+                    </span>
+                </div>
+                <div style="position: absolute; bottom: 5px; right: 5px; width: 30px; height: 30px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary);">
+                    <i class="fas fa-camera" style="color: var(--primary); font-size: 0.8rem;"></i>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text); margin-bottom: 0.5rem;">
+                    {{ user.username }}
+                </h1>
+                <p style="color: var(--text-light); margin-bottom: 0.5rem;">
+                    <i class="fas fa-envelope"></i> {{ user.email }}
+                </p>
+                <p style="color: var(--text-light);">
+                    <i class="fas fa-calendar"></i> Присоединился: {{ user.date_joined|date:"d.m.Y" }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="profile-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <a href="{% url 'favorites' %}" class="stat-card" style="text-decoration: none;">
+            <div style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; text-align: center; transition: transform 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #ff6b6b, #ff8e8e); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                    <i class="fas fa-heart" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 2rem; color: var(--text); margin-bottom: 0.5rem;">
+                    {{ user.profile.favorite_paintings.count }}
+                </h3>
+                <p style="color: var(--text-light);">Избранные работы</p>
+            </div>
+        </a>
+        
+        <a href="{% url 'following' %}" class="stat-card" style="text-decoration: none;">
+            <div style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; text-align: center; transition: transform 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #4fd1c7, #68d391); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                    <i class="fas fa-users" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 2rem; color: var(--text); margin-bottom: 0.5rem;">
+                    {{ user.profile.following_artists.count }}
+                </h3>
+                <p style="color: var(--text-light);">Подписки</p>
+            </div>
+        </a>
+        
+        <div class="stat-card">
+            <div style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; text-align: center; transition: transform 0.3s ease;">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                    <i class="fas fa-thumbs-up" style="color: white; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 2rem; color: var(--text); margin-bottom: 0.5rem;">
+                    {{ user.liked_paintings.count }}
+                </h3>
+                <p style="color: var(--text-light);">Лайки</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="quick-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{% url 'favorites' %}" class="btn btn-primary" style="flex: 1; min-width: 200px;">
+            <i class="fas fa-heart"></i> Избранное
+        </a>
+        <a href="{% url 'following' %}" class="btn btn-outline" style="flex: 1; min-width: 200px;">
+            <i class="fas fa-users"></i> Мои подписки
+        </a>
+        <button class="btn btn-outline" style="flex: 1; min-width: 200px;">
+            <i class="fas fa-cog"></i> Настройки
+        </button>
+    </div>
+</div>
+
+<style>
+    .stat-card:hover > div {
+        transform: translateY(-5px);
+    }
+    
+    .profile-container {
+        animation: fadeIn 0.5s ease;
+    }
+</style>
+{% endblock %}

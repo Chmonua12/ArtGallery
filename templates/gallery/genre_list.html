@@ -1,0 +1,1275 @@
+{% extends 'base.html' %}
+
+{% block title %}Жанры - ArtVerse | Цифровая галерея{% endblock %}
+
+{% block content %}
+<!-- Блок жанров -->
+<section class="genres-section">
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="genres-header">
+            <div class="title-wrapper">
+                <h1 class="genres-title">Миры искусства</h1>
+                <div class="title-line"></div>
+            </div>
+            
+            <p class="genres-subtitle">
+                Исследуйте разнообразие художественных направлений и стилей
+                <span class="subtitle-highlight">от классики до современности</span>
+            </p>
+            
+            <!-- Статистика -->
+            <div class="genres-stats">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number">{{ genres_count|default:"0" }}</div>
+                        <div class="stat-label">Жанров</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number">{{ total_paintings|default:"0" }}</div>
+                        <div class="stat-label">Произведений</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-number">{{ total_artists|default:"0" }}</div>
+                        <div class="stat-label">Художников</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Сетка жанров -->
+        <div class="genres-grid">
+            {% for genre in genres %}
+            <div class="genre-card" data-count="{{ genre.painting_count }}">
+                <div class="genre-card-inner">
+                    <!-- Заголовок жанра -->
+                    <div class="genre-header">
+                        <div class="genre-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="genre-title-wrapper">
+                            <h3 class="genre-title">
+                                <a href="{% url 'genre_detail' genre.pk %}" class="title-link">
+                                    {{ genre.name }}
+                                </a>
+                            </h3>
+                            <div class="genre-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-paint-brush"></i>
+                                    {{ genre.painting_count|default:"0" }} работ
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Описание жанра -->
+                    <div class="genre-content">
+                        {% if genre.description %}
+                        <p class="genre-description">
+                            {{ genre.description|truncatewords:25 }}
+                        </p>
+                        {% else %}
+                        <p class="genre-description">
+                            Исследуйте уникальные произведения этого направления искусства
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Предпросмотр картин -->
+                    {% if genre.painting_count > 0 %}
+                    <div class="genre-preview">
+                        <div class="preview-header">
+                            <span class="preview-title">Работы в жанре</span>
+                            <a href="{% url 'genre_detail' genre.pk %}" class="preview-link">
+                                Смотреть все <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="preview-container">
+                            {% for painting in genre.painting_set.all|slice:":4" %}
+                            <div class="preview-item">
+                                <div class="preview-image" 
+                                     {% if painting.image %}style="background-image: url('{{ painting.image.url }}')"{% endif %}>
+                                    {% if not painting.image %}
+                                    <div class="preview-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="preview-overlay">
+                                    <span class="preview-name">{{ painting.title|truncatechars:20 }}</span>
+                                    {% if painting.artist %}
+                                    <span class="preview-artist">{{ painting.artist.name }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if genre.painting_count > 4 %}
+                        <div class="preview-more">
+                            <span>+{{ genre.painting_count|add:"-4" }} еще</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="no-paintings">
+                        <i class="fas fa-paint-brush"></i>
+                        <p>Пока нет произведений в этом жанре</p>
+                        <a href="/admin/gallery/painting/add/" class="add-btn">
+                            <i class="fas fa-plus"></i>
+                            Добавить работу
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Действия -->
+                    <div class="genre-actions">
+                        <a href="{% url 'genre_detail' genre.pk %}" class="action-btn explore-btn">
+                            <span class="btn-content">
+                                Подробнее
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                        </a>
+                        
+                        {% if genre.tags.all %}
+                        <div class="genre-tags">
+                            {% for tag in genre.tags.all|slice:":3" %}
+                            <span class="tag-item">{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-genres-message">
+                <div class="message-container">
+                    <div class="message-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Жанры еще не созданы</h3>
+                    <p>Начните создавать уникальные художественные направления для вашей коллекции</p>
+                    <a href="/admin/gallery/genre/add/" class="create-btn">
+                        <i class="fas fa-plus-circle"></i>
+                        Создать первый жанр
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Навигация по популярности -->
+        {% if genres.count > 1 %}
+        <div class="genres-navigation">
+            <h4 class="nav-title">
+                Самые популярные жанры
+            </h4>
+            <div class="nav-tags">
+                {% for genre in genres|dictsortreversed:"painting_count"|slice:":6" %}
+                <a href="{% url 'genre_detail' genre.pk %}" class="nav-tag">
+                    <span class="tag-text">{{ genre.name }}</span>
+                    <span class="tag-count">{{ genre.painting_count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+/* ===== ОСНОВНЫЕ СТИЛИ ===== */
+.genres-section {
+    padding: 4rem 0 5rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ===== ЗАГОЛОВОК ===== */
+.genres-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    position: relative;
+}
+
+.title-wrapper {
+    display: inline-block;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.genres-title {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.title-line {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, #74b9ff, #0984e3, #00b894);
+    border-radius: 2px;
+    animation: lineWidth 2s ease-in-out infinite alternate;
+}
+
+@keyframes lineWidth {
+    0% { width: 100px; }
+    100% { width: 140px; }
+}
+
+.genres-subtitle {
+    font-size: 1.3rem;
+    color: #5a5a72;
+    max-width: 700px;
+    margin: 1.5rem auto 3rem;
+    line-height: 1.6;
+    font-weight: 400;
+    padding: 0 1rem;
+}
+
+.subtitle-highlight {
+    color: #0984e3;
+    font-weight: 600;
+    position: relative;
+    display: inline-block;
+}
+
+.subtitle-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #0984e3, transparent);
+    border-radius: 1px;
+}
+
+/* ===== СТАТИСТИКА ===== */
+.genres-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    padding: 1.8rem 2.2rem;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 150px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(116, 185, 255, 0.05), rgba(9, 132, 227, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-number {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #1a1a2e;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #0984e3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: #5a5a72;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+/* ===== СЕТКА ЖАНРОВ ===== */
+.genres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.genre-card {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.genre-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(248, 249, 250, 0.4));
+    z-index: 0;
+}
+
+.genre-card:hover {
+    transform: translateY(-12px) scale(1.01);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.genre-card-inner {
+    padding: 2rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+/* Заголовок жанра */
+.genre-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+.genre-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+}
+
+.genre-icon i {
+    font-size: 1.6rem;
+    color: white;
+}
+
+.genre-title-wrapper {
+    flex-grow: 1;
+}
+
+.genre-title {
+    margin: 0 0 0.8rem 0;
+}
+
+.title-link {
+    color: #1a1a2e;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-block;
+    position: relative;
+    padding-bottom: 3px;
+}
+
+.title-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #0984e3, #74b9ff);
+    transition: width 0.3s ease;
+    border-radius: 1px;
+}
+
+.title-link:hover {
+    color: #0984e3;
+}
+
+.title-link:hover::after {
+    width: 100%;
+}
+
+.genre-meta {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #5a5a72;
+    font-size: 0.95rem;
+    font-weight: 500;
+    background: #f8f9fa;
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.meta-item i {
+    color: #74b9ff;
+    font-size: 0.9rem;
+}
+
+/* Описание жанра */
+.genre-content {
+    margin-bottom: 1.8rem;
+    flex-grow: 1;
+}
+
+.genre-description {
+    color: #5a5a72;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0;
+    padding: 0.5rem 0;
+}
+
+/* Предпросмотр картин */
+.genre-preview {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.8rem;
+    border: 1px solid #e9ecef;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.preview-title {
+    font-size: 1rem;
+    color: #1a1a2e;
+    font-weight: 700;
+}
+
+.preview-link {
+    font-size: 0.9rem;
+    color: #0984e3;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(116, 185, 255, 0.1);
+}
+
+.preview-link:hover {
+    background: rgba(116, 185, 255, 0.2);
+    gap: 0.6rem;
+}
+
+.preview-link i {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.preview-link:hover i {
+    transform: translateX(3px);
+}
+
+.preview-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+}
+
+.preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.preview-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.preview-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-color: #e9ecef;
+    transition: transform 0.5s ease;
+}
+
+.preview-item:hover .preview-image {
+    transform: scale(1.08);
+}
+
+.preview-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #f1f3f5, #e9ecef);
+}
+
+.preview-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(26, 26, 46, 0.9));
+    padding: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.preview-item:hover .preview-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.preview-name {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+}
+
+.preview-artist {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.75rem;
+    display: block;
+}
+
+.preview-more {
+    text-align: center;
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.preview-more span {
+    font-size: 0.9rem;
+    color: #5a5a72;
+    background: white;
+    padding: 0.4rem 1.2rem;
+    border-radius: 15px;
+    display: inline-block;
+    border: 1px solid #e9ecef;
+    font-weight: 600;
+}
+
+/* Нет картин */
+.no-paintings {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 16px;
+    margin-bottom: 1.8rem;
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.no-paintings:hover {
+    border-color: #74b9ff;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+}
+
+.no-paintings i {
+    font-size: 3rem;
+    color: #adb5bd;
+    margin-bottom: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.no-paintings:hover i {
+    color: #74b9ff;
+}
+
+.no-paintings p {
+    color: #5a5a72;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+    text-decoration: none;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+}
+
+.add-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(116, 185, 255, 0.4);
+    background: linear-gradient(135deg, #0984e3, #0770c4);
+}
+
+.add-btn i {
+    font-size: 0.9rem;
+}
+
+/* Действия */
+.genre-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f1f3f5;
+}
+
+.explore-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.8rem;
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+    text-decoration: none;
+    border-radius: 14px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(116, 185, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.explore-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
+
+.explore-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(116, 185, 255, 0.4);
+    background: linear-gradient(135deg, #0984e3, #0770c4);
+}
+
+.explore-btn:hover::before {
+    left: 100%;
+}
+
+.explore-btn .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    position: relative;
+    z-index: 1;
+}
+
+.genre-tags {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.tag-item {
+    padding: 0.5rem 0.9rem;
+    background: #f1f3f5;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    color: #5a5a72;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.tag-item:hover {
+    background: #e9ecef;
+    color: #1a1a2e;
+    transform: translateY(-2px);
+    border-color: #74b9ff;
+    box-shadow: 0 4px 12px rgba(116, 185, 255, 0.2);
+}
+
+/* Сообщение об отсутствии жанров */
+.no-genres-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 22px;
+    border: 2px solid #e9ecef;
+    margin: 2rem 0;
+}
+
+.message-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.message-icon {
+    font-size: 4rem;
+    color: #74b9ff;
+    margin-bottom: 2rem;
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.no-genres-message h3 {
+    color: #1a1a2e;
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+    font-weight: 800;
+}
+
+.no-genres-message p {
+    color: #5a5a72;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+.create-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1.2rem 2.5rem;
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+    text-decoration: none;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px rgba(116, 185, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.create-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(116, 185, 255, 0.4);
+    background: linear-gradient(135deg, #0984e3, #0770c4);
+}
+
+.create-btn i {
+    font-size: 1.1rem;
+}
+
+/* Навигация по популярности */
+.genres-navigation {
+    padding: 2.5rem;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 22px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.nav-title {
+    color: #1a1a2e;
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: 800;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-bottom: 0.8rem;
+}
+
+.nav-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #74b9ff, #0984e3);
+    border-radius: 1.5px;
+}
+
+.nav-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.nav-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 1.5rem;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 16px;
+    color: #1a1a2e;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.nav-tag:hover {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+    transform: translateY(-4px) scale(1.05);
+    border-color: transparent;
+    box-shadow: 0 8px 25px rgba(116, 185, 255, 0.4);
+}
+
+.nav-tag:hover .tag-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    border-color: transparent;
+}
+
+.tag-text {
+    font-weight: 700;
+}
+
+.tag-count {
+    background: #f1f3f5;
+    color: #0984e3;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 1200px) {
+    .genres-grid {
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    }
+    
+    .genres-title {
+        font-size: 2.8rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .genres-section {
+        padding: 3rem 0 4rem;
+    }
+    
+    .genres-title {
+        font-size: 2.5rem;
+    }
+    
+    .genres-subtitle {
+        font-size: 1.2rem;
+        margin: 1.2rem auto 2.5rem;
+    }
+    
+    .genres-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.8rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem 1.8rem;
+        min-width: 130px;
+    }
+    
+    .stat-number {
+        font-size: 2.4rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .genres-title {
+        font-size: 2.2rem;
+    }
+    
+    .genres-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 0 auto 3rem;
+    }
+    
+    .genres-stats {
+        flex-direction: row;
+        justify-content: center;
+        gap: 1.2rem;
+        max-width: 100%;
+        margin: 2.5rem auto;
+    }
+    
+    .stat-card {
+        min-width: calc(33.333% - 1rem);
+        padding: 1.2rem 1rem;
+    }
+    
+    .nav-tags {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 0.8rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .nav-tag {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .genres-navigation {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .genres-title {
+        font-size: 2rem;
+    }
+    
+    .genres-subtitle {
+        font-size: 1.1rem;
+        padding: 0;
+    }
+    
+    .genre-card-inner {
+        padding: 1.8rem;
+    }
+    
+    .genre-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .genre-icon {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .genre-icon i {
+        font-size: 1.4rem;
+    }
+    
+    .genres-stats {
+        gap: 0.8rem;
+    }
+    
+    .stat-card {
+        min-width: calc(50% - 0.8rem);
+        padding: 1rem 0.8rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.85rem;
+    }
+}
+
+/* Плавная прокрутка для навигационных тегов на мобильных */
+@media (max-width: 768px) {
+    .nav-tags::-webkit-scrollbar {
+        height: 5px;
+    }
+    
+    .nav-tags::-webkit-scrollbar-track {
+        background: rgba(116, 185, 255, 0.1);
+        border-radius: 2.5px;
+        margin: 0 1rem;
+    }
+    
+    .nav-tags::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #74b9ff, #0984e3);
+        border-radius: 2.5px;
+    }
+}
+
+/* Анимации */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.genre-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-fill-mode: both;
+}
+
+.genre-card:nth-child(1) { animation-delay: 0.1s; }
+.genre-card:nth-child(2) { animation-delay: 0.2s; }
+.genre-card:nth-child(3) { animation-delay: 0.3s; }
+.genre-card:nth-child(4) { animation-delay: 0.4s; }
+.genre-card:nth-child(5) { animation-delay: 0.5s; }
+.genre-card:nth-child(6) { animation-delay: 0.6s; }
+
+.genres-header {
+    animation: fadeInUp 0.8s ease-out;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Плавное появление карточек при скролле
+    const genreCards = document.querySelectorAll('.genre-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    genreCards.forEach(card => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+    });
+    
+    // Анимация статистики при загрузке
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const original = stat.textContent;
+        const target = parseInt(original.replace(/\D/g, '')) || 0;
+        
+        if (target > 0) {
+            let current = 0;
+            const increment = Math.max(1, Math.ceil(target / 30));
+            const interval = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                stat.textContent = current.toLocaleString();
+            }, 30);
+        }
+    });
+    
+    // Параллакс эффект для заголовка при скролле
+    const genresHeader = document.querySelector('.genres-header');
+    if (genresHeader) {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxValue = scrolled * 0.1;
+            genresHeader.style.transform = `translateY(${parallaxValue}px)`;
+        });
+    }
+    
+    // Интерактивность карточек жанров
+    genreCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            const genreIcon = card.querySelector('.genre-icon');
+            if (genreIcon) {
+                genreIcon.style.transform = 'rotate(15deg) scale(1.1)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            const genreIcon = card.querySelector('.genre-icon');
+            if (genreIcon) {
+                genreIcon.style.transform = 'rotate(0) scale(1)';
+            }
+        });
+    });
+    
+    // Эффект параллакса для превью картин
+    const previewItems = document.querySelectorAll('.preview-item');
+    previewItems.forEach(item => {
+        item.addEventListener('mousemove', (e) => {
+            const rect = item.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const moveX = (x - centerX) / 20;
+            const moveY = (y - centerY) / 20;
+            
+            const previewImage = item.querySelector('.preview-image');
+            if (previewImage) {
+                previewImage.style.transform = `scale(1.08) translate(${moveX}px, ${moveY}px)`;
+            }
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            const previewImage = item.querySelector('.preview-image');
+            if (previewImage) {
+                previewImage.style.transform = 'scale(1)';
+            }
+        });
+    });
+    
+    // Плавная прокрутка для навигационных тегов
+    const navTags = document.querySelector('.nav-tags');
+    if (navTags && window.innerWidth < 768) {
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+        
+        navTags.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - navTags.offsetLeft;
+            scrollLeft = navTags.scrollLeft;
+            navTags.style.cursor = 'grabbing';
+            navTags.style.userSelect = 'none';
+        });
+        
+        navTags.addEventListener('mouseleave', () => {
+            isDragging = false;
+            navTags.style.cursor = 'grab';
+            navTags.style.userSelect = 'auto';
+        });
+        
+        navTags.addEventListener('mouseup', () => {
+            isDragging = false;
+            navTags.style.cursor = 'grab';
+            navTags.style.userSelect = 'auto';
+        });
+        
+        navTags.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - navTags.offsetLeft;
+            const walk = (x - startX) * 2;
+            navTags.scrollLeft = scrollLeft - walk;
+        });
+        
+        // Для сенсорных устройств
+        navTags.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].pageX - navTags.offsetLeft;
+            scrollLeft = navTags.scrollLeft;
+        });
+        
+        navTags.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        navTags.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const x = e.touches[0].pageX - navTags.offsetLeft;
+            const walk = (x - startX) * 2;
+            navTags.scrollLeft = scrollLeft - walk;
+        });
+    }
+    
+    // Добавление легкого мерцания для заголовка
+    const genresTitle = document.querySelector('.genres-title');
+    if (genresTitle) {
+        setInterval(() => {
+            genresTitle.style.textShadow = 
+                `0 2px 10px rgba(0, 0, 0, 0.05), 
+                 0 0 20px rgba(116, 185, 255, 0.3)`;
+            
+            setTimeout(() => {
+                genresTitle.style.textShadow = 
+                    '0 2px 10px rgba(0, 0, 0, 0.05)';
+            }, 1000);
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}
